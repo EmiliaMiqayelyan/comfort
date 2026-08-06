@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Comfort — Premium Architectural Interiors
 
-## Getting Started
+Enterprise-grade multilingual website for [Comfort](https://comfort.am): baseboards, 3D wall panels, moldings, and profiles.
 
-First, run the development server:
+## Stack
+
+- Next.js 15+ (App Router) · React 19 · TypeScript · Tailwind CSS 4
+- Framer Motion · GSAP · Three.js · React Three Fiber · Drei
+- TanStack Query · Zustand · next-intl (AM / RU / EN)
+- Lenis · Swiper · React Hook Form · Zod · Lucide · Radix / shadcn-style UI
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) — middleware redirects to `/en`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+npm start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Locales
 
-## Learn More
+| Path | Language |
+|------|----------|
+| `/am` | Armenian |
+| `/ru` | Russian |
+| `/en` | English |
 
-To learn more about Next.js, take a look at the following resources:
+Language switcher lives in the header. Messages: `messages/{am,ru,en}.json`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Key routes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Route | Description |
+|-------|-------------|
+| `/[locale]` | Cinematic home |
+| `/[locale]/products` | Catalog |
+| `/[locale]/products/[slug]` | Product PDP + 3D viewer |
+| `/[locale]/collections` | Collections + filters |
+| `/[locale]/configurator` | Live product configurator |
+| `/[locale]/visualizer` | Room visualizer |
+| `/[locale]/calculator` | Smart material calculator |
+| `/[locale]/ar` | WebXR / QR AR entry |
+| `/[locale]/projects` | Portfolio |
+| `/[locale]/about` | Company |
+| `/[locale]/downloads` | CAD / BIM / PDF center |
+| `/[locale]/blog` | Journal |
+| `/[locale]/contact` | Contact + form |
+| `/[locale]/admin` | CMS dashboard |
 
-## Deploy on Vercel
+## Admin
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Visit `/en/admin/login`
+2. Demo: `admin@comfort.am` / `admin`
+3. Roles: admin, manager, editor, translator, dealer (inferred from email substring)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Architecture
+
+```
+src/
+  app/[locale]/     # Locale-scoped routes + admin
+  components/       # Atomic UI (atoms / molecules / organisms)
+  features/         # Home, viewer, configurator, calculator, visualizer, AR, admin, CMS UI
+  data/             # Catalog mock data
+  i18n/             # next-intl routing + request config
+  stores/           # Zustand (UI, auth, viewer, calculator, visualizer)
+  lib/              # Utils + calculator engine
+  types/            # Shared TypeScript models
+messages/           # am / ru / en dictionaries
+```
+
+## Design system
+
+- Primary `#111827` · Secondary `#F5F5F2` · Accent `#C8A97E`
+- Dark mode via `next-themes`
+- Glassmorphism utilities: `.glass`, `.shadow-soft`, `.display`
+- Fonts: Manrope (body) · Syne (display)
+
+## SEO & performance
+
+- Per-locale metadata, Open Graph, alternates
+- `sitemap.ts` · `robots.ts`
+- Image optimization (AVIF/WebP) · dynamic 3D bundle · Lenis smooth scroll
+
+## Notes
+
+Catalog, CMS, and media currently use in-memory / mock data suitable for UI development. Wire to your API, headless CMS, or database for production content and auth.
