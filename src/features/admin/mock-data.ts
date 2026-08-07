@@ -61,6 +61,56 @@ export const mockModels = [
   { id: "3", name: "Classic Molding CM-08", format: "GLB", size: "6.1 MB", linkedProduct: "CM-08" },
 ];
 
+export const mockCertificates = [
+  { id: "1", name: "ISO 9001:2015", issuer: "TÜV", status: "published", updated: "2026-01-12" },
+  { id: "2", name: "CE Marking", issuer: "EU", status: "published", updated: "2025-11-03" },
+  { id: "3", name: "Eco Material Certificate", issuer: "GreenLab", status: "draft", updated: "2026-06-18" },
+];
+
+export const mockColors = [
+  { id: "1", name: "Polar White", hex: "#F7F7F4", status: "published" },
+  { id: "2", name: "Anthracite", hex: "#2B2F36", status: "published" },
+  { id: "3", name: "Natural Oak", hex: "#B8A07E", status: "published" },
+];
+
+export const mockMaterials = [
+  { id: "1", name: "HD Polymer", density: "High", status: "published" },
+  { id: "2", name: "MDF / Polymer", density: "Medium", status: "published" },
+  { id: "3", name: "Aluminum", density: "Light", status: "draft" },
+];
+
+export const mockTextures = [
+  { id: "1", name: "Matte", map: "matte.jpg", status: "published" },
+  { id: "2", name: "Satin", map: "satin.jpg", status: "published" },
+  { id: "3", name: "Wood Grain", map: "oak.jpg", status: "draft" },
+];
+
+export const mockMenus = [
+  { id: "1", name: "Main navigation", items: "6", locale: "all", status: "published" },
+  { id: "2", name: "Footer products", items: "4", locale: "all", status: "published" },
+  { id: "3", name: "Footer legal", items: "3", locale: "all", status: "published" },
+];
+
+export const mockRoles = [
+  { id: "1", name: "Admin", users: "2", permissions: "Full access" },
+  { id: "2", name: "Manager", users: "3", permissions: "Content + SEO" },
+  { id: "3", name: "Editor", users: "5", permissions: "Content only" },
+  { id: "4", name: "Translator", users: "2", permissions: "Languages" },
+  { id: "5", name: "Dealer", users: "12", permissions: "Products + Downloads" },
+];
+
+export const mockCalculatorSettings = [
+  { id: "1", name: "Default waste %", value: "8", status: "published" },
+  { id: "2", name: "Piece length (m)", value: "2.4", status: "published" },
+  { id: "3", name: "Adhesive factor", value: "0.12", status: "published" },
+];
+
+export const mockVisualizerAssets = [
+  { id: "1", name: "Warm Living preset", type: "Room", status: "published" },
+  { id: "2", name: "White Gallery preset", type: "Room", status: "published" },
+  { id: "3", name: "Baseboard overlay pack", type: "Overlay", status: "draft" },
+];
+
 export const mockLanguages = [
   { id: "en", name: "English", code: "en", enabled: true, default: true },
   { id: "ru", name: "Русский", code: "ru", enabled: true, default: false },

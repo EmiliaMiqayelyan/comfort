@@ -233,10 +233,11 @@ export function ProductViewer3D({
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 p-4">
-        <div className="glass pointer-events-auto flex flex-col gap-3 rounded-2xl p-4 shadow-soft lg:flex-row lg:items-end lg:justify-between">
-          <div className="space-y-3">
-            <p className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 p-3 sm:p-4">
+        <div className="glass pointer-events-auto grid grid-cols-1 gap-4 rounded-2xl p-3 shadow-soft sm:p-4 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-end md:gap-5">
+          {/* Color */}
+          <div className="min-w-0 space-y-2">
+            <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
               {t("color")}
             </p>
             <div
@@ -252,10 +253,10 @@ export function ProductViewer3D({
                   aria-pressed={activeColor.toLowerCase() === hex.toLowerCase()}
                   onClick={() => set({ color: hex })}
                   className={cn(
-                    "h-8 w-8 rounded-full border-2 transition-transform hover:scale-105 focus-ring",
+                    "h-8 w-8 shrink-0 rounded-full border-2 transition-transform hover:scale-105 focus-ring",
                     activeColor.toLowerCase() === hex.toLowerCase()
                       ? "border-accent ring-2 ring-accent/40"
-                      : "border-white/70",
+                      : "border-border/80",
                   )}
                   style={{ backgroundColor: hex }}
                 />
@@ -263,10 +264,11 @@ export function ProductViewer3D({
             </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <label className="space-y-1.5">
-              <span className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
-                <Sun className="size-3.5" aria-hidden />
+          {/* Lighting + Environment */}
+          <div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2">
+            <label className="min-w-0 space-y-1.5">
+              <span className="flex items-center gap-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                <Sun className="size-3.5 shrink-0" aria-hidden />
                 {t("lighting")}
               </span>
               <select
@@ -276,7 +278,7 @@ export function ProductViewer3D({
                     lighting: e.target.value as (typeof LIGHTING_OPTIONS)[number],
                   })
                 }
-                className="h-9 w-full min-w-[140px] rounded-xl border border-border bg-card/80 px-3 text-sm focus-ring"
+                className="h-9 w-full max-w-full rounded-xl border border-border bg-card/90 px-3 text-sm focus-ring"
                 aria-label={t("lighting")}
               >
                 {LIGHTING_OPTIONS.map((option) => (
@@ -286,8 +288,8 @@ export function ProductViewer3D({
                 ))}
               </select>
             </label>
-            <label className="space-y-1.5">
-              <span className="text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            <label className="min-w-0 space-y-1.5">
+              <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground">
                 {t("environment")}
               </span>
               <select
@@ -298,7 +300,7 @@ export function ProductViewer3D({
                       e.target.value as (typeof ENVIRONMENT_OPTIONS)[number],
                   })
                 }
-                className="h-9 w-full min-w-[140px] rounded-xl border border-border bg-card/80 px-3 text-sm focus-ring"
+                className="h-9 w-full max-w-full rounded-xl border border-border bg-card/90 px-3 text-sm focus-ring"
                 aria-label={t("environment")}
               >
                 {ENVIRONMENT_OPTIONS.map((option) => (
@@ -310,20 +312,22 @@ export function ProductViewer3D({
             </label>
           </div>
 
-          <div className="flex flex-wrap gap-2">
+          {/* Actions */}
+          <div className="flex min-w-0 flex-row flex-wrap gap-2 md:flex-col md:items-stretch">
             <Button
               type="button"
               variant="secondary"
               size="sm"
               onClick={handleFullscreen}
               aria-label={t("fullscreen")}
+              className="justify-start"
             >
               {isFullscreen ? (
                 <Maximize2 aria-hidden />
               ) : (
                 <Expand aria-hidden />
               )}
-              <span className="hidden sm:inline">{t("fullscreen")}</span>
+              <span>{t("fullscreen")}</span>
             </Button>
             <Button
               type="button"
@@ -331,9 +335,10 @@ export function ProductViewer3D({
               size="sm"
               onClick={handleScreenshot}
               aria-label={t("screenshot")}
+              className="justify-start"
             >
               <Download aria-hidden />
-              <span className="hidden sm:inline">{t("screenshot")}</span>
+              <span>{t("screenshot")}</span>
             </Button>
             <Button
               type="button"
@@ -341,11 +346,10 @@ export function ProductViewer3D({
               size="sm"
               onClick={handleShare}
               aria-label={t("share")}
+              className="justify-start"
             >
               <Share2 aria-hidden />
-              <span className="hidden sm:inline">
-                {copied ? "Copied" : t("share")}
-              </span>
+              <span>{copied ? "Copied" : t("share")}</span>
             </Button>
           </div>
         </div>

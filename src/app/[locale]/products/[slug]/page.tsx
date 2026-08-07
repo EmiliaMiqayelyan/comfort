@@ -3,17 +3,26 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { ProductDetailContent } from "@/features/products/product-detail-content";
+import { CategoryDetailContent } from "@/features/products/category-detail-content";
 import {
   products,
+  categories,
   getProductBySlug,
+  getCategoryBySlug,
   getLocalized,
 } from "@/data/catalog";
 import { routing } from "@/i18n/routing";
 import { ArrowLeft } from "lucide-react";
+import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 
 export function generateStaticParams() {
+  const productParams = products.map((product) => ({ slug: product.slug }));
+  const categoryParams = categories.map((category) => ({ slug: category.slug }));
   return routing.locales.flatMap((locale) =>
-    products.map((product) => ({ locale, slug: product.slug })),
+    [...productParams, ...categoryParams].map((item) => ({
+      locale,
+      slug: item.slug,
+    })),
   );
 }
 
@@ -24,33 +33,60 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale, slug } = await params;
   const product = getProductBySlug(slug);
-  if (!product) return { title: "Product — Comfort" };
+  const category = getCategoryBySlug(slug);
 
-  const name = getLocalized(product.name, locale);
-  const description = getLocalized(product.description, locale);
-
-  return {
-    title: `${name} — Comfort`,
-    description,
-    alternates: {
-      canonical: `https://comfort.am/${locale}/products/${slug}`,
-      languages: {
-        am: `https://comfort.am/am/products/${slug}`,
-        ru: `https://comfort.am/ru/products/${slug}`,
-        en: `https://comfort.am/en/products/${slug}`,
-      },
-    },
-    openGraph: {
-      title: name,
+  if (product) {
+    const name = getLocalized(product.name, locale);
+    const description = getLocalized(product.description, locale);
+    return {
+      title: `${name} — Comfort`,
       description,
-      url: `https://comfort.am/${locale}/products/${slug}`,
-      images: product.images[0] ? [{ url: product.images[0] }] : undefined,
-      locale,
-    },
-  };
+      alternates: {
+        canonical: `https://comfort.am/${locale}/products/${slug}`,
+        languages: {
+          am: `https://comfort.am/am/products/${slug}`,
+          ru: `https://comfort.am/ru/products/${slug}`,
+          en: `https://comfort.am/en/products/${slug}`,
+        },
+      },
+      openGraph: {
+        title: name,
+        description,
+        url: `https://comfort.am/${locale}/products/${slug}`,
+        images: product.images[0] ? [{ url: product.images[0] }] : undefined,
+        locale,
+      },
+    };
+  }
+
+  if (category) {
+    const name = getLocalized(category.name, locale);
+    const description = getLocalized(category.description, locale);
+    return {
+      title: `${name} — Comfort`,
+      description,
+      alternates: {
+        canonical: `https://comfort.am/${locale}/products/${slug}`,
+        languages: {
+          am: `https://comfort.am/am/products/${slug}`,
+          ru: `https://comfort.am/ru/products/${slug}`,
+          en: `https://comfort.am/en/products/${slug}`,
+        },
+      },
+      openGraph: {
+        title: name,
+        description,
+        url: `https://comfort.am/${locale}/products/${slug}`,
+        images: [{ url: category.image }],
+        locale,
+      },
+    };
+  }
+
+  return { title: "Not found — Comfort" };
 }
 
-export default async function ProductDetailPage({
+export default async function ProductOrCategoryPage({
   params,
 }: {
   params: Promise<{ locale: string; slug: string }>;
@@ -59,7 +95,9 @@ export default async function ProductDetailPage({
   setRequestLocale(locale);
 
   const product = getProductBySlug(slug);
-  if (!product) notFound();
+  const category = getCategoryBySlug(slug);
+
+  if (!product && !category) notFound();
 
   const tc = await getTranslations({ locale, namespace: "common" });
 
@@ -73,7 +111,43 @@ export default async function ProductDetailPage({
           <ArrowLeft className="h-4 w-4" />
           {tc("back")}
         </Link>
-        <ProductDetailContent product={product} />
+
+        {product ? (
+          <>
+            <ProductJsonLd
+              name={getLocalized(product.name, locale)}
+              description={getLocalized(product.description, locale)}
+              sku={product.sku}
+              image={product.images[0]}
+              price={product.price}
+            />
+            <BreadcrumbJsonLd
+              items={[
+                { name: "Comfort", url: `https://comfort.am/${locale}` },
+                { name: "Products", url: `https://comfort.am/${locale}/products` },
+                {
+                  name: getLocalized(product.name, locale),
+                  url: `https://comfort.am/${locale}/products/${product.slug}`,
+                },
+              ]}
+            />
+            <ProductDetailContent product={product} />
+          </>
+        ) : category ? (
+          <>
+            <BreadcrumbJsonLd
+              items={[
+                { name: "Comfort", url: `https://comfort.am/${locale}` },
+                { name: "Products", url: `https://comfort.am/${locale}/products` },
+                {
+                  name: getLocalized(category.name, locale),
+                  url: `https://comfort.am/${locale}/products/${category.slug}`,
+                },
+              ]}
+            />
+            <CategoryDetailContent category={category} />
+          </>
+        ) : null}
       </div>
     </section>
   );

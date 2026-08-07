@@ -27,11 +27,13 @@ export function AuthGate({ children }: AuthGateProps) {
 
   if (!ready || !user) {
     return (
-      <div className="flex h-full min-h-[50vh] items-center justify-center">
+      <div className="flex min-h-0 flex-1 items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-accent" />
       </div>
     );
   }
 
-  return <>{children}</>;
+  return (
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{children}</div>
+  );
 }

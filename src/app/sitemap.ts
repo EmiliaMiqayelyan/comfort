@@ -3,6 +3,7 @@ import { routing } from "@/i18n/routing";
 import {
   products,
   collections,
+  categories,
   projects,
   blogPosts,
 } from "@/data/catalog";
@@ -15,6 +16,7 @@ const STATIC_ROUTES = [
   "/collections",
   "/projects",
   "/about",
+  "/production",
   "/downloads",
   "/blog",
   "/contact",
@@ -38,6 +40,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
         lastModified: new Date(),
         changeFrequency: route === "" ? "weekly" : "monthly",
         priority: route === "" ? 1 : 0.8,
+      });
+    }
+
+    for (const category of categories) {
+      entries.push({
+        url: `${BASE}/${locale}/products/${category.slug}`,
+        lastModified: new Date(),
+        changeFrequency: "monthly",
+        priority: 0.75,
       });
     }
 

@@ -1,11 +1,13 @@
-import { getTranslations } from "next-intl/server";
-import { Globe, Share2, ExternalLink } from "lucide-react";
+"use client";
+
+import { useTranslations } from "next-intl";
+import { Share2, Globe, ExternalLink } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Separator } from "@/components/atoms/separator";
 
-export async function SiteFooter() {
-  const t = await getTranslations("footer");
-  const nav = await getTranslations("nav");
+export function SiteFooter() {
+  const t = useTranslations("footer");
+  const nav = useTranslations("nav");
 
   return (
     <footer className="border-t border-border bg-comfort-ink text-comfort-sand">
@@ -43,6 +45,7 @@ export async function SiteFooter() {
           </FooterCol>
           <FooterCol title={t("company")}>
             <Link href="/about">{nav("about")}</Link>
+            <Link href="/production">{nav("production")}</Link>
             <Link href="/projects">{nav("projects")}</Link>
             <Link href="/partners">{nav("partners")}</Link>
             <Link href="/blog">{nav("blog")}</Link>
@@ -63,7 +66,9 @@ export async function SiteFooter() {
 
       <Separator className="bg-white/10" />
       <div className="container-wide flex flex-col gap-2 py-6 text-xs text-comfort-sand/50 sm:flex-row sm:items-center sm:justify-between">
-        <p>© {new Date().getFullYear()} Comfort. {t("rights")}</p>
+        <p>
+          © {new Date().getFullYear()} Comfort. {t("rights")}
+        </p>
         <p>comfort.am</p>
       </div>
     </footer>

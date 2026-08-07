@@ -29,6 +29,15 @@ const hrefMap: Record<(typeof navKeys)[number], string> = {
   contact: "/contact",
 };
 
+const mobileExtra = [
+  { key: "production" as const, href: "/production" },
+  { key: "calculator" as const, href: "/calculator" },
+  { key: "visualizer" as const, href: "/visualizer" },
+  { key: "configurator" as const, href: "/configurator" },
+  { key: "blog" as const, href: "/blog" },
+  { key: "partners" as const, href: "/partners" },
+];
+
 export function SiteHeader() {
   const t = useTranslations("nav");
   const locale = useLocale() as AppLocale;
@@ -173,6 +182,16 @@ export function SiteHeader() {
                   onClick={() => setMobileNavOpen(false)}
                 >
                   {t(key)}
+                </Link>
+              ))}
+              {mobileExtra.map((item) => (
+                <Link
+                  key={item.key}
+                  href={item.href}
+                  className="text-base text-muted-foreground"
+                  onClick={() => setMobileNavOpen(false)}
+                >
+                  {t(item.key)}
                 </Link>
               ))}
               <div className="flex gap-2 pt-2">

@@ -37,14 +37,14 @@ export function AdminShell({ children }: AdminShellProps) {
   };
 
   return (
-    <div className="flex h-full overflow-hidden">
+    <div className="flex min-h-0 flex-1 overflow-hidden">
       <aside
         className={cn(
-          "flex shrink-0 flex-col border-r border-white/5 bg-[#0b0f17] transition-all duration-300",
+          "flex min-h-0 shrink-0 flex-col border-r border-white/5 bg-[#0b0f17] transition-all duration-300",
           collapsed ? "w-[72px]" : "w-64",
         )}
       >
-        <div className="flex h-16 items-center justify-between border-b border-white/5 px-4">
+        <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/5 px-4">
           {!collapsed && (
             <div>
               <p className="text-sm font-semibold tracking-wide text-zinc-50">Comfort</p>
@@ -56,12 +56,13 @@ export function AdminShell({ children }: AdminShellProps) {
             size="icon-sm"
             onClick={() => setCollapsed(!collapsed)}
             className="rounded-lg text-zinc-400 hover:bg-white/5 hover:text-zinc-100"
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </Button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-2 py-4">
+        <nav className="admin-pane-scroll min-h-0 flex-1 overscroll-contain px-2 py-4">
           <ul className="space-y-0.5">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -88,7 +89,7 @@ export function AdminShell({ children }: AdminShellProps) {
           </ul>
         </nav>
 
-        <div className="border-t border-white/5 p-3">
+        <div className="shrink-0 border-t border-white/5 p-3">
           {!collapsed && (
             <div className="mb-3 rounded-xl bg-white/[0.03] px-3 py-2.5">
               <p className="truncate text-sm font-medium text-zinc-100">{user.name}</p>
@@ -119,7 +120,7 @@ export function AdminShell({ children }: AdminShellProps) {
         </div>
       </aside>
 
-      <main className="flex-1 overflow-y-auto bg-[#0f1319]">
+      <main className="admin-pane-scroll min-h-0 flex-1 overscroll-contain bg-[#0f1319]">
         <div className="mx-auto max-w-7xl px-6 py-8 lg:px-10">{children}</div>
       </main>
     </div>

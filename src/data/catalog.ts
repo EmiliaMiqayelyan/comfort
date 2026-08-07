@@ -8,7 +8,7 @@ const img = {
   hero3:
     "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=2400&q=80",
   baseboard:
-    "https://images.unsplash.com/photo-1615876234781-d1a9c0e2f1d8?auto=format&fit=crop&w=1200&q=80",
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
   panel:
     "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=80",
   molding:
@@ -358,6 +358,35 @@ export const products: Product[] = [
     price: 3900,
     availability: "in_stock",
   },
+  {
+    id: "p-corner-set",
+    slug: "corner-accessory-set",
+    sku: "AC-COR-01",
+    name: L("Corner Accessory Set", "Набор угловых аксессуаров", "Անկյունային աքսեսուարների հավաքածու"),
+    description: L(
+      "Inner and outer corners with matching connectors for clean installation.",
+      "Внутренние и внешние углы с соединителями для чистого монтажа.",
+      "Ներքին և արտաքին անկյուններ՝ մաքուր մոնտաժման համար։",
+    ),
+    categoryId: "cat-accessories",
+    collectionId: "col-modern",
+    images: [img.accessory, img.baseboard],
+    height: 80,
+    width: 16,
+    depth: 16,
+    length: 80,
+    material: "HD polymer",
+    finish: "Matte",
+    colors,
+    textures,
+    specs: [
+      { key: "height", label: L("Height", "Высота", "Բարձրություն"), value: "80", unit: "mm" },
+      { key: "material", label: L("Material", "Материал", "Նյութ"), value: "HD Polymer" },
+    ],
+    downloads: [],
+    price: 1800,
+    availability: "in_stock",
+  },
 ];
 
 export const projects: Project[] = [
@@ -474,12 +503,32 @@ export function getProductBySlug(slug: string) {
   return products.find((p) => p.slug === slug);
 }
 
+export function getCategoryBySlug(slug: string) {
+  return categories.find((c) => c.slug === slug);
+}
+
+export function getCollectionBySlug(slug: string) {
+  return collections.find((c) => c.slug === slug);
+}
+
 export function getProductsByCategory(categoryId: string) {
   return products.filter((p) => p.categoryId === categoryId);
+}
+
+export function getProductsByCollection(collectionId: string) {
+  return products.filter((p) => p.collectionId === collectionId);
 }
 
 export function getRelatedProducts(product: Product, limit = 4) {
   return products
     .filter((p) => p.id !== product.id && (p.categoryId === product.categoryId || p.collectionId === product.collectionId))
     .slice(0, limit);
+}
+
+export function getProjectBySlug(slug: string) {
+  return projects.find((p) => p.slug === slug);
+}
+
+export function getBlogPostBySlug(slug: string) {
+  return blogPosts.find((p) => p.slug === slug);
 }
