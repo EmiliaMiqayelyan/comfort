@@ -4,14 +4,11 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Reveal } from "@/components/molecules/reveal";
+import { ProductCardGrid } from "@/components/molecules/product-card";
 import { Badge } from "@/components/atoms/badge";
-import {
-  collections,
-  products,
-  getLocalized,
-} from "@/data/catalog";
+import { collections, getLocalized } from "@/data/catalog";
+import { loadCollection, loadProducts } from "@/lib/catalog-source";
 import { routing } from "@/i18n/routing";
-import { formatPrice } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 
 export function generateStaticParams() {
@@ -26,7 +23,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const collection = collections.find((c) => c.slug === slug);
+  const collection = await loadCollection(slug);
   if (!collection) return { title: "Collection — Comfort" };
 
   const name = getLocalized(collection.name, locale);
@@ -55,10 +52,11 @@ export default async function CollectionDetailPage({
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const collection = collections.find((c) => c.slug === slug);
+  const collection = await loadCollection(slug);
   if (!collection) notFound();
 
-  const collectionProducts = products.filter(
+  const allProducts = await loadProducts();
+  const collectionProducts = allProducts.filter(
     (p) => p.collectionId === collection.id,
   );
   const t = await getTranslations({ locale, namespace: "collections" });
@@ -110,34 +108,7 @@ export default async function CollectionDetailPage({
                 {t("title")}
               </h2>
             </Reveal>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {collectionProducts.map((product, i) => (
-                <Reveal key={product.id} delay={i * 0.06}>
-                  <Link
-                    href={`/products/${product.slug}`}
-                    className="group overflow-hidden rounded-3xl bg-card shadow-soft transition hover:shadow-[0_24px_64px_rgba(17,24,39,0.12)]"
-                  >
-                    <div className="relative aspect-[4/3] overflow-hidden">
-                      <Image
-                        src={product.images[0]}
-                        alt={getLocalized(product.name, locale)}
-                        fill
-                        className="object-cover transition duration-700 group-hover:scale-105"
-                        sizes="(max-width: 640px) 100vw, 33vw"
-                      />
-                    </div>
-                    <div className="p-6">
-                      <h3 className="display text-lg text-foreground">
-                        {getLocalized(product.name, locale)}
-                      </h3>
-                      <p className="mt-2 text-sm text-muted-foreground">
-                        {formatPrice(product.price, locale)}
-                      </p>
-                    </div>
-                  </Link>
-                </Reveal>
-              ))}
-            </div>
+            <ProductCardGrid products={collectionProducts} />
           </div>
         )}
       </div>

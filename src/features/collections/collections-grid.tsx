@@ -7,7 +7,8 @@ import { Link } from "@/i18n/routing";
 import { Reveal } from "@/components/molecules/reveal";
 import { Badge } from "@/components/atoms/badge";
 import { cn } from "@/lib/utils";
-import { collections, getLocalized } from "@/data/catalog";
+import { getLocalized } from "@/data/catalog";
+import { useCollections } from "@/hooks/use-catalog";
 
 const STYLES = ["all", "minimal", "natural", "modern", "classic"] as const;
 
@@ -17,6 +18,7 @@ export function CollectionsGrid() {
   const locale = useLocale();
   const [activeStyle, setActiveStyle] = useState<string>("all");
   const [query, setQuery] = useState("");
+  const { data: collections = [] } = useCollections();
 
   const filtered = useMemo(() => {
     return collections.filter((col) => {
@@ -28,7 +30,7 @@ export function CollectionsGrid() {
       const matchesQuery = !q || name.includes(q) || desc.includes(q);
       return matchesStyle && matchesQuery;
     });
-  }, [activeStyle, query, locale]);
+  }, [activeStyle, query, locale, collections]);
 
   return (
     <>

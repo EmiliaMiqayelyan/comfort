@@ -6,6 +6,7 @@ import { Link } from "@/i18n/routing";
 import { Reveal } from "@/components/molecules/reveal";
 import { Badge } from "@/components/atoms/badge";
 import { blogPosts, getLocalized } from "@/data/catalog";
+import { loadPost, loadPosts } from "@/lib/catalog-source";
 import { routing } from "@/i18n/routing";
 import { ArrowLeft } from "lucide-react";
 
@@ -21,7 +22,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const post = blogPosts.find((p) => p.slug === slug);
+  const post = await loadPost(slug);
   if (!post) return { title: "Journal — Comfort" };
 
   const title = getLocalized(post.title, locale);
@@ -52,13 +53,14 @@ export default async function BlogPostPage({
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const post = blogPosts.find((p) => p.slug === slug);
+  const post = await loadPost(slug);
   if (!post) notFound();
 
   const t = await getTranslations({ locale, namespace: "blog" });
   const tc = await getTranslations({ locale, namespace: "common" });
 
-  const related = blogPosts.filter((p) => p.id !== post.id).slice(0, 2);
+  const posts = await loadPosts();
+  const related = posts.filter((p) => p.id !== post.id).slice(0, 2);
 
   return (
     <article className="bg-background py-16 md:py-24">

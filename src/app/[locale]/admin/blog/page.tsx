@@ -1,42 +1,59 @@
 "use client";
 
-import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useCallback, useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { AuthGate } from "@/features/admin/auth-gate";
 import { AdminShell } from "@/features/admin/admin-shell";
 import { PageHeader } from "@/features/admin/page-header";
-import { DataTable, StatusBadge } from "@/features/admin/data-table";
-import { mockBlogPosts } from "@/features/admin/mock-data";
+import { DataTable } from "@/features/admin/data-table";
+import { useAdminDelete } from "@/features/admin/confirm-dialog";
+import { useRouter } from "@/i18n/routing";
+import { adminApi, catalogApi } from "@/lib/api";
+import { getLocalized } from "@/data/catalog";
+import type { BlogPost } from "@/types";
 
 export default function AdminBlogPage() {
   const t = useTranslations("admin");
-  const [items, setItems] = useState(mockBlogPosts);
+  const locale = useLocale();
+  const router = useRouter();
+  const [items, setItems] = useState<BlogPost[]>([]);
+  const { deleteWithConfirm, dialog, error } = useAdminDelete();
+
+  const load = useCallback(async () => {
+    setItems((await catalogApi.posts()) ?? []);
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   return (
     <AuthGate>
       <AdminShell>
-        <PageHeader
-          title={t("blog")}
-          createLabel={t("create")}
-          onCreate={() =>
-            setItems((prev) => [
-              { id: String(Date.now()), title: "New Article", author: "Admin", status: "draft", date: "2026-08-06" },
-              ...prev,
-            ])
-          }
-        />
+        <PageHeader title={t("blog")} createLabel={t("create")} createHref="/admin/blog/new" />
+        {error && (
+          <div className="mb-4 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+            {error}
+          </div>
+        )}
         <DataTable
           data={items}
           editLabel={t("edit")}
+          deleteLabel={t("delete")}
           emptyLabel={t("noResults")}
-          onEdit={() => {}}
+          onEdit={(row) => router.push(`/admin/blog/${row.id}`)}
+          onDelete={async (row) => {
+            const ok = await deleteWithConfirm(() => adminApi.deletePost(row.id));
+            if (ok) setItems((prev) => prev.filter((item) => item.id !== row.id));
+          }}
           columns={[
-            { key: "title", header: t("name") },
-            { key: "author", header: "Author" },
-            { key: "status", header: t("status"), render: (row) => <StatusBadge status={row.status} /> },
-            { key: "date", header: "Date" },
+            { key: "title", header: t("name"), render: (row) => getLocalized(row.title, locale) },
+            { key: "author", header: "Author", render: (row) => row.author.name },
+            { key: "category", header: t("categories") },
+            { key: "publishedAt", header: "Date" },
           ]}
         />
+        {dialog}
       </AdminShell>
     </AuthGate>
   );

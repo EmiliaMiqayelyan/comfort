@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { defaultLocale } from "@/i18n/config";
+const adminLocale = "am";
 
 export default async function AdminSlugRedirect({
   params,
@@ -8,5 +8,5 @@ export default async function AdminSlugRedirect({
 }) {
   const { slug } = await params;
   const path = slug?.length ? slug.join("/") : "";
-  redirect(`/${defaultLocale}/admin${path ? `/${path}` : ""}`);
+  redirect(`/${adminLocale}/admin${path ? `/${path}` : ""}`);
 }

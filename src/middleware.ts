@@ -1,17 +1,17 @@
 import createMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
 import { routing } from "@/i18n/routing";
-import { defaultLocale } from "@/i18n/config";
-
 const intlMiddleware = createMiddleware(routing);
 
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  const adminLocale = "am";
+
   // Bare /admin paths must always include a locale prefix
   if (pathname === "/admin" || pathname.startsWith("/admin/")) {
     const url = request.nextUrl.clone();
-    url.pathname = `/${defaultLocale}${pathname}`;
+    url.pathname = `/${adminLocale}${pathname}`;
     return NextResponse.redirect(url);
   }
 

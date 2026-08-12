@@ -1,6 +1,6 @@
 "use client";
 
-import { Pencil } from "lucide-react";
+import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/atoms/button";
 import { Badge } from "@/components/atoms/badge";
 import { cn } from "@/lib/utils";
@@ -16,7 +16,9 @@ interface DataTableProps<T extends { id: string }> {
   columns: Column<T>[];
   data: T[];
   onEdit?: (row: T) => void;
+  onDelete?: (row: T) => void;
   editLabel?: string;
+  deleteLabel?: string;
   emptyLabel?: string;
 }
 
@@ -24,7 +26,9 @@ export function DataTable<T extends { id: string }>({
   columns,
   data,
   onEdit,
+  onDelete,
   editLabel = "Edit",
+  deleteLabel = "Delete",
   emptyLabel = "No results",
 }: DataTableProps<T>) {
   if (data.length === 0) {
@@ -46,7 +50,9 @@ export function DataTable<T extends { id: string }>({
                   {col.header}
                 </th>
               ))}
-              {onEdit && <th className="px-5 py-3.5 font-medium text-right">Actions</th>}
+              {(onEdit || onDelete) && (
+                <th className="px-5 py-3.5 font-medium text-right">Actions</th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -60,17 +66,32 @@ export function DataTable<T extends { id: string }>({
                     {col.render ? col.render(row) : (row as Record<string, unknown>)[col.key]?.toString()}
                   </td>
                 ))}
-                {onEdit && (
+                {(onEdit || onDelete) && (
                   <td className="px-5 py-4 text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onEdit(row)}
-                      className="rounded-lg text-zinc-400 hover:bg-white/5 hover:text-zinc-100"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                      {editLabel}
-                    </Button>
+                    <div className="flex justify-end gap-1">
+                      {onEdit && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onEdit(row)}
+                          className="rounded-lg text-zinc-400 hover:bg-white/5 hover:text-zinc-100"
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                          {editLabel}
+                        </Button>
+                      )}
+                      {onDelete && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onDelete(row)}
+                          className="rounded-lg text-zinc-400 hover:bg-red-500/10 hover:text-red-400"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          {deleteLabel}
+                        </Button>
+                      )}
+                    </div>
                   </td>
                 )}
               </tr>

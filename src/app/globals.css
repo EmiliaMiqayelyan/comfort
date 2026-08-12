@@ -32,6 +32,8 @@
     rgba(17, 24, 39, 0.28) 55%,
     rgba(17, 24, 39, 0.12) 100%
   );
+  --font-comfort-sans: "Manrope", system-ui, sans-serif;
+  --font-comfort-display: "Syne", "Manrope", system-ui, sans-serif;
 }
 
 .dark {

@@ -10,6 +10,7 @@ import { Label } from "@/components/atoms/label";
 import { Badge } from "@/components/atoms/badge";
 import { cn, formatPrice } from "@/lib/utils";
 import { calculateMaterials } from "@/lib/calculator";
+import { saveCalculator } from "@/lib/api";
 import { products } from "@/data/catalog";
 import { useCalculatorStore } from "@/stores";
 
@@ -51,6 +52,15 @@ export function SmartCalculator({ className }: { className?: string }) {
     );
     doc.save("comfort-calculation.pdf");
   }, [input, locale, result, t, tc]);
+
+  const handleSave = useCallback(async () => {
+    if (!result) return;
+    try {
+      await saveCalculator({ input, result });
+    } catch {
+      // Keep local result even if API is offline.
+    }
+  }, [input, result]);
 
   const emailHref = result
     ? `mailto:?subject=${encodeURIComponent(t("title"))}&body=${encodeURIComponent(
@@ -257,7 +267,7 @@ export function SmartCalculator({ className }: { className?: string }) {
                 <Button type="button" variant="outline" asChild>
                   <a href={emailHref}>{t("email")}</a>
                 </Button>
-                <Button type="button" variant="ghost">
+                <Button type="button" variant="ghost" onClick={handleSave}>
                   <Save aria-hidden />
                   {t("save")}
                 </Button>

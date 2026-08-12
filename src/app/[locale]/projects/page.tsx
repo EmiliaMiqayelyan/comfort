@@ -4,7 +4,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Reveal } from "@/components/molecules/reveal";
 import { Badge } from "@/components/atoms/badge";
-import { projects, getLocalized } from "@/data/catalog";
+import { getLocalized } from "@/data/catalog";
+import { loadProjects } from "@/lib/catalog-source";
 
 export async function generateMetadata({
   params,
@@ -40,6 +41,7 @@ export default async function ProjectsPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "projects" });
+  const projects = await loadProjects();
 
   return (
     <section className="bg-background py-20 md:py-28">

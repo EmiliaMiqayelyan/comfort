@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { ConfiguratorState, VisualizerState, CalculatorInput, CalculatorResult, Role } from "@/types";
+import { loginRequest, type AuthUser } from "@/lib/api";
+import type { ConfiguratorState, VisualizerState, CalculatorInput, CalculatorResult } from "@/types";
 
 interface UiState {
   mobileNavOpen: boolean;
@@ -105,8 +106,9 @@ export const useCalculatorStore = create<CalculatorStore>((set) => ({
 }));
 
 interface AuthState {
-  user: { id: string; name: string; email: string; role: Role } | null;
-  login: (email: string, password: string) => boolean;
+  user: AuthUser | null;
+  token: string | null;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
@@ -114,31 +116,17 @@ export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
-      login: (email, password) => {
-        if (password.length < 4) return false;
-        const role: Role =
-          email.includes("admin")
-            ? "admin"
-            : email.includes("translator")
-              ? "translator"
-              : email.includes("editor")
-                ? "editor"
-                : email.includes("dealer")
-                  ? "dealer"
-                  : email.includes("manager")
-                    ? "manager"
-                    : "manager";
-        set({
-          user: {
-            id: "1",
-            name: email.split("@")[0],
-            email,
-            role,
-          },
-        });
-        return true;
+      token: null,
+      login: async (email, password) => {
+        try {
+          const { token, user } = await loginRequest(email, password);
+          set({ user, token });
+          return true;
+        } catch {
+          return false;
+        }
       },
-      logout: () => set({ user: null }),
+      logout: () => set({ user: null, token: null }),
     }),
     { name: "comfort-auth" },
   ),

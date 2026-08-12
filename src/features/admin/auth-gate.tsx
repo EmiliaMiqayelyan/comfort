@@ -10,7 +10,7 @@ interface AuthGateProps {
 }
 
 export function AuthGate({ children }: AuthGateProps) {
-  const { user } = useAuthStore();
+  const { user, token, logout } = useAuthStore();
   const router = useRouter();
   const [ready, setReady] = useState(false);
 
@@ -20,12 +20,14 @@ export function AuthGate({ children }: AuthGateProps) {
   }, []);
 
   useEffect(() => {
-    if (ready && !user) {
+    if (!ready) return;
+    if (!user || !token) {
+      if (user && !token) logout();
       router.replace("/admin/login");
     }
-  }, [ready, user, router]);
+  }, [ready, user, token, router, logout]);
 
-  if (!ready || !user) {
+  if (!ready || !user || !token) {
     return (
       <div className="flex min-h-0 flex-1 items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-accent" />

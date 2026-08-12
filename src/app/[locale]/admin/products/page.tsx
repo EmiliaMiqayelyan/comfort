@@ -1,16 +1,53 @@
 "use client";
 
-import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useCallback, useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { AuthGate } from "@/features/admin/auth-gate";
 import { AdminShell } from "@/features/admin/admin-shell";
 import { PageHeader } from "@/features/admin/page-header";
 import { DataTable, StatusBadge } from "@/features/admin/data-table";
-import { mockProducts } from "@/features/admin/mock-data";
+import { useRouter } from "@/i18n/routing";
+import { useAdminDelete } from "@/features/admin/confirm-dialog";
+import { adminApi, catalogApi } from "@/lib/api";
+import { getLocalized } from "@/data/catalog";
+import type { Product, ProductCategory } from "@/types";
 
 export default function AdminProductsPage() {
   const t = useTranslations("admin");
-  const [items, setItems] = useState(mockProducts);
+  const locale = useLocale();
+  const router = useRouter();
+  const [items, setItems] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<ProductCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const { deleteWithConfirm, dialog, error: deleteError } = useAdminDelete();
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    const [products, nextCategories] = await Promise.all([
+      catalogApi.products(),
+      catalogApi.categories(),
+    ]);
+    if (!products || !nextCategories) {
+      setError(t("apiUnavailable"));
+      setItems([]);
+      setCategories([]);
+    } else {
+      setItems(products);
+      setCategories(nextCategories);
+    }
+    setLoading(false);
+  }, [t]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const categoryName = (id: string) => {
+    const category = categories.find((item) => item.id === id);
+    return category ? getLocalized(category.name, locale) : id;
+  };
 
   return (
     <AuthGate>
@@ -19,26 +56,61 @@ export default function AdminProductsPage() {
           title={t("products")}
           description={t("productsDesc")}
           createLabel={t("create")}
-          onCreate={() =>
-            setItems((prev) => [
-              { id: String(Date.now()), name: "New Product", sku: "NEW-001", category: "Baseboards", status: "draft", updated: "2026-08-06" },
-              ...prev,
-            ])
-          }
+          createHref="/admin/products/new"
         />
-        <DataTable
-          data={items}
-          editLabel={t("edit")}
-          emptyLabel={t("noResults")}
-          onEdit={() => {}}
-          columns={[
-            { key: "name", header: t("name") },
-            { key: "sku", header: "SKU" },
-            { key: "category", header: t("categories") },
-            { key: "status", header: t("status"), render: (row) => <StatusBadge status={row.status} /> },
-            { key: "updated", header: t("updated") },
-          ]}
-        />
+        {loading ? (
+          <p className="text-sm text-zinc-400">Loading…</p>
+        ) : error ? (
+          <div className="rounded-2xl border border-red-500/20 bg-red-500/10 px-6 py-8 text-sm text-red-300">
+            <p>{error}</p>
+            <p className="mt-3 text-zinc-400">{t("apiUnavailableHint")}</p>
+          </div>
+        ) : (
+          <>
+            {(deleteError || error) && (
+              <div className="mb-4 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+                {deleteError || error}
+              </div>
+            )}
+          <DataTable
+            data={items}
+            editLabel={t("edit")}
+            deleteLabel={t("delete")}
+            emptyLabel={t("noResults")}
+            onEdit={(row) => router.push(`/admin/products/${row.id}`)}
+            onDelete={async (row) => {
+              const ok = await deleteWithConfirm(() => adminApi.deleteProduct(row.id));
+              if (ok) setItems((prev) => prev.filter((item) => item.id !== row.id));
+            }}
+            columns={[
+              {
+                key: "name",
+                header: t("name"),
+                render: (row) => getLocalized(row.name, locale),
+              },
+              { key: "sku", header: "SKU" },
+              {
+                key: "categoryId",
+                header: t("categories"),
+                render: (row) => categoryName(row.categoryId),
+              },
+              {
+                key: "availability",
+                header: t("status"),
+                render: (row) => (
+                  <StatusBadge status={row.featured ? "published" : row.availability} />
+                ),
+              },
+              {
+                key: "price",
+                header: t("price"),
+                render: (row) => String(row.price),
+              },
+            ]}
+          />
+          {dialog}
+          </>
+        )}
       </AdminShell>
     </AuthGate>
   );

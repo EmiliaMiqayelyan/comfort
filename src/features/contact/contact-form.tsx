@@ -10,6 +10,7 @@ import { Input } from "@/components/atoms/input";
 import { Textarea } from "@/components/atoms/textarea";
 import { Label } from "@/components/atoms/label";
 import { cn } from "@/lib/utils";
+import { sendContact } from "@/lib/api";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -25,6 +26,7 @@ export function ContactForm({ className }: { className?: string }) {
   const t = useTranslations("contact");
   const tc = useTranslations("common");
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
 
   const {
     register,
@@ -42,10 +44,15 @@ export function ContactForm({ className }: { className?: string }) {
     },
   });
 
-  const onSubmit = async (_data: ContactFormValues) => {
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    setSubmitted(true);
-    reset();
+  const onSubmit = async (data: ContactFormValues) => {
+    setSubmitError(false);
+    try {
+      await sendContact(data);
+      setSubmitted(true);
+      reset();
+    } catch {
+      setSubmitError(true);
+    }
   };
 
   if (submitted) {
@@ -146,6 +153,10 @@ export function ContactForm({ className }: { className?: string }) {
           <p className="text-xs text-destructive">{errors.message.message}</p>
         )}
       </div>
+
+      {submitError && (
+        <p className="text-sm text-destructive">{tc("error")}</p>
+      )}
 
       <Button type="submit" size="lg" disabled={isSubmitting}>
         {isSubmitting ? tc("loading") : t("send")}

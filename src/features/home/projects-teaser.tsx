@@ -5,14 +5,15 @@ import { useLocale, useTranslations } from "next-intl";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Reveal } from "@/components/molecules/reveal";
-import { projects, getLocalized } from "@/data/catalog";
+import { getLocalized } from "@/data/catalog";
+import { useProjects } from "@/hooks/use-catalog";
 import { cn } from "@/lib/utils";
-
-const featured = projects.slice(0, 3);
 
 export function ProjectsTeaser() {
   const t = useTranslations("projects");
   const locale = useLocale();
+  const { data: projects = [] } = useProjects();
+  const featured = projects.slice(0, 3);
 
   return (
     <section className="bg-background py-20 md:py-28">

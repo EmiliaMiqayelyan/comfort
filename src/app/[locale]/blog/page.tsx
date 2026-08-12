@@ -4,7 +4,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Reveal } from "@/components/molecules/reveal";
 import { Badge } from "@/components/atoms/badge";
-import { blogPosts, getLocalized } from "@/data/catalog";
+import { getLocalized } from "@/data/catalog";
+import { loadPosts } from "@/lib/catalog-source";
 
 export async function generateMetadata({
   params,
@@ -40,6 +41,7 @@ export default async function BlogPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "blog" });
+  const blogPosts = await loadPosts();
 
   const sorted = [...blogPosts].sort(
     (a, b) =>

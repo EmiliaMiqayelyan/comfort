@@ -1,15 +1,17 @@
 "use client";
 
-import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Reveal } from "@/components/molecules/reveal";
-import { categories, getLocalized } from "@/data/catalog";
+import { CatalogCard } from "@/components/molecules/catalog-card";
+import { getLocalized } from "@/data/catalog";
+import { useCategories } from "@/hooks/use-catalog";
 
 export function CategoriesSection() {
   const t = useTranslations("categories");
   const locale = useLocale();
+  const { data: categories = [] } = useCategories();
 
   return (
     <section className="bg-background py-20 md:py-28">
@@ -30,37 +32,12 @@ export function CategoriesSection() {
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {categories.map((category, i) => (
             <Reveal key={category.id} delay={i * 0.08}>
-              <Link
+              <CatalogCard
                 href={`/products/${category.slug}`}
-                className="group relative flex h-full flex-col overflow-hidden rounded-3xl bg-card shadow-soft transition hover:shadow-[0_24px_64px_rgba(17,24,39,0.12)]"
-              >
-                <div className="relative aspect-[4/5] overflow-hidden">
-                  <Image
-                    src={category.image}
-                    alt={getLocalized(category.name, locale)}
-                    fill
-                    className="object-cover transition duration-700 ease-out group-hover:scale-105"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 20vw"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                </div>
-                <div className="flex flex-1 flex-col justify-between p-5 md:p-6">
-                  <div>
-                    <h3 className="display text-lg text-foreground md:text-xl">
-                      {getLocalized(category.name, locale)}
-                    </h3>
-                    <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-                      {getLocalized(category.description, locale)}
-                    </p>
-                  </div>
-                  <span
-                    aria-hidden
-                    className="mt-4 flex h-9 w-9 items-center justify-center self-end rounded-full border border-border bg-background/80 transition group-hover:border-accent group-hover:text-accent"
-                  >
-                    <ArrowUpRight className="h-4 w-4" />
-                  </span>
-                </div>
-              </Link>
+                image={category.image}
+                title={getLocalized(category.name, locale)}
+                description={getLocalized(category.description, locale)}
+              />
             </Reveal>
           ))}
         </div>

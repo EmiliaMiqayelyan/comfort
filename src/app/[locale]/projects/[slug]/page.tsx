@@ -4,12 +4,10 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Reveal } from "@/components/molecules/reveal";
+import { ProductCardGrid } from "@/components/molecules/product-card";
 import { Badge } from "@/components/atoms/badge";
-import {
-  projects,
-  products,
-  getLocalized,
-} from "@/data/catalog";
+import { projects, getLocalized } from "@/data/catalog";
+import { loadProject, loadProducts } from "@/lib/catalog-source";
 import { routing } from "@/i18n/routing";
 import { ArrowLeft } from "lucide-react";
 
@@ -25,7 +23,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const project = projects.find((p) => p.slug === slug);
+  const project = await loadProject(slug);
   if (!project) return { title: "Project — Comfort" };
 
   const title = getLocalized(project.title, locale);
@@ -54,10 +52,11 @@ export default async function ProjectDetailPage({
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const project = projects.find((p) => p.slug === slug);
+  const project = await loadProject(slug);
   if (!project) notFound();
 
-  const usedProducts = products.filter((p) => project.products.includes(p.id));
+  const allProducts = await loadProducts();
+  const usedProducts = allProducts.filter((p) => project.products.includes(p.id));
   const t = await getTranslations({ locale, namespace: "projects" });
   const tc = await getTranslations({ locale, namespace: "common" });
 
@@ -159,32 +158,7 @@ export default async function ProjectDetailPage({
                 {t("usedProducts")}
               </h2>
             </Reveal>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {usedProducts.map((product, i) => (
-                <Reveal key={product.id} delay={i * 0.06}>
-                  <Link
-                    href={`/products/${product.slug}`}
-                    className="group flex items-center gap-4 rounded-3xl border border-border bg-card p-4 transition hover:shadow-soft"
-                  >
-                    <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl">
-                      <Image
-                        src={product.images[0]}
-                        alt={getLocalized(product.name, locale)}
-                        fill
-                        className="object-cover"
-                        sizes="80px"
-                      />
-                    </div>
-                    <div>
-                      <h3 className="display text-base text-foreground">
-                        {getLocalized(product.name, locale)}
-                      </h3>
-                      <p className="text-xs text-muted-foreground">{product.sku}</p>
-                    </div>
-                  </Link>
-                </Reveal>
-              ))}
-            </div>
+            <ProductCardGrid products={usedProducts} />
           </div>
         )}
       </div>

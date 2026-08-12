@@ -4,13 +4,8 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { ProductDetailContent } from "@/features/products/product-detail-content";
 import { CategoryDetailContent } from "@/features/products/category-detail-content";
-import {
-  products,
-  categories,
-  getProductBySlug,
-  getCategoryBySlug,
-  getLocalized,
-} from "@/data/catalog";
+import { products, categories, getLocalized } from "@/data/catalog";
+import { loadProduct, loadCategory } from "@/lib/catalog-source";
 import { routing } from "@/i18n/routing";
 import { ArrowLeft } from "lucide-react";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
@@ -32,8 +27,8 @@ export async function generateMetadata({
   params: Promise<{ locale: string; slug: string }>;
 }): Promise<Metadata> {
   const { locale, slug } = await params;
-  const product = getProductBySlug(slug);
-  const category = getCategoryBySlug(slug);
+  const product = await loadProduct(slug);
+  const category = await loadCategory(slug);
 
   if (product) {
     const name = getLocalized(product.name, locale);
@@ -94,8 +89,8 @@ export default async function ProductOrCategoryPage({
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const product = getProductBySlug(slug);
-  const category = getCategoryBySlug(slug);
+  const product = await loadProduct(slug);
+  const category = await loadCategory(slug);
 
   if (!product && !category) notFound();
 

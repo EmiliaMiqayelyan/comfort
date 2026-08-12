@@ -15,13 +15,10 @@ import { ProductViewer3D } from "@/features/viewer/product-viewer-3d";
 import { Button } from "@/components/atoms/button";
 import { Badge } from "@/components/atoms/badge";
 import { Reveal } from "@/components/molecules/reveal";
+import { ProductCardGrid } from "@/components/molecules/product-card";
 import { cn, formatPrice } from "@/lib/utils";
-import {
-  categories,
-  collections,
-  getLocalized,
-  getRelatedProducts,
-} from "@/data/catalog";
+import { getLocalized } from "@/data/catalog";
+import { useCategories, useCollections, useProducts } from "@/hooks/use-catalog";
 import type { Product } from "@/types";
 
 const availabilityKeys = {
@@ -35,9 +32,18 @@ export function ProductDetailContent({ product }: { product: Product }) {
   const locale = useLocale();
   const [activeImage, setActiveImage] = useState(0);
 
+  const { data: categories = [] } = useCategories();
+  const { data: collections = [] } = useCollections();
+  const { data: allProducts = [] } = useProducts();
   const category = categories.find((c) => c.id === product.categoryId);
   const collection = collections.find((c) => c.id === product.collectionId);
-  const related = getRelatedProducts(product);
+  const related = allProducts
+    .filter(
+      (p) =>
+        p.id !== product.id &&
+        (p.categoryId === product.categoryId || p.collectionId === product.collectionId),
+    )
+    .slice(0, 4);
 
   return (
     <>
@@ -234,34 +240,7 @@ export function ProductDetailContent({ product }: { product: Product }) {
               {t("related")}
             </h2>
           </Reveal>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {related.map((item, i) => (
-              <Reveal key={item.id} delay={i * 0.06}>
-                <Link
-                  href={`/products/${item.slug}`}
-                  className="group overflow-hidden rounded-3xl bg-card shadow-soft transition hover:shadow-[0_24px_64px_rgba(17,24,39,0.12)]"
-                >
-                  <div className="relative aspect-square overflow-hidden">
-                    <Image
-                      src={item.images[0]}
-                      alt={getLocalized(item.name, locale)}
-                      fill
-                      className="object-cover transition duration-700 group-hover:scale-105"
-                      sizes="(max-width: 640px) 50vw, 25vw"
-                    />
-                  </div>
-                  <div className="p-5">
-                    <h3 className="display text-base text-foreground">
-                      {getLocalized(item.name, locale)}
-                    </h3>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {formatPrice(item.price, locale)}
-                    </p>
-                  </div>
-                </Link>
-              </Reveal>
-            ))}
-          </div>
+          <ProductCardGrid products={related} />
         </section>
       )}
     </>

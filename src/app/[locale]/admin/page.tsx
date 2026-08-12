@@ -1,14 +1,29 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Package, Building2, Image, Users, Activity } from "lucide-react";
 import { AuthGate } from "@/features/admin/auth-gate";
 import { AdminShell } from "@/features/admin/admin-shell";
 import { StatCard } from "@/features/admin/stat-card";
+import { adminApi, catalogApi } from "@/lib/api";
 import { mockRecentActivity } from "@/features/admin/mock-data";
 
 export default function AdminDashboardPage() {
   const t = useTranslations("admin");
+  const [counts, setCounts] = useState({ products: 0, projects: 0, users: 0 });
+
+  useEffect(() => {
+    Promise.all([catalogApi.products(), catalogApi.projects(), adminApi.users()]).then(
+      ([products, projects, users]) => {
+        setCounts({
+          products: products?.length ?? 0,
+          projects: projects?.length ?? 0,
+          users: users?.length ?? 0,
+        });
+      },
+    );
+  }, []);
 
   return (
     <AuthGate>
@@ -19,10 +34,10 @@ export default function AdminDashboardPage() {
         </div>
 
         <div className="mb-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <StatCard title={t("statsProducts")} value={63} icon={Package} trend="+4 this month" />
-          <StatCard title={t("statsProjects")} value={28} icon={Building2} trend="+2 this month" />
-          <StatCard title={t("statsMedia")} value={412} icon={Image} trend="+18 this week" />
-          <StatCard title={t("statsUsers")} value={12} icon={Users} trend="3 active now" />
+          <StatCard title={t("statsProducts")} value={counts.products} icon={Package} />
+          <StatCard title={t("statsProjects")} value={counts.projects} icon={Building2} />
+          <StatCard title={t("statsMedia")} value="—" icon={Image} />
+          <StatCard title={t("statsUsers")} value={counts.users} icon={Users} />
         </div>
 
         <div className="rounded-2xl border border-white/5 bg-[#141a24]">

@@ -5,11 +5,13 @@ import { useLocale, useTranslations } from "next-intl";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Reveal } from "@/components/molecules/reveal";
-import { collections, getLocalized } from "@/data/catalog";
+import { getLocalized } from "@/data/catalog";
+import { useCollections } from "@/hooks/use-catalog";
 
 export function CollectionsSection() {
   const t = useTranslations("collections");
   const locale = useLocale();
+  const { data: collections = [] } = useCollections();
 
   return (
     <section className="bg-secondary/50 py-20 md:py-28">
