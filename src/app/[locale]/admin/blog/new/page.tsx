@@ -1,7 +1,5 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import { BlogForm } from "@/features/admin/blog-form";
-
-export default function AdminCreateBlogPage() {
-  return <BlogForm />;
+export default function RemovedAdminPage() {
+  redirect("/am/admin");
 }

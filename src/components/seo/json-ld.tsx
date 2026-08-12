@@ -1,5 +1,3 @@
-import Script from "next/script";
-
 const organizationLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
@@ -16,8 +14,7 @@ const organizationLd = {
 
 export function OrganizationJsonLd() {
   return (
-    <Script
-      id="organization-jsonld"
+    <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
     />
@@ -41,8 +38,7 @@ export function BreadcrumbJsonLd({
   };
 
   return (
-    <Script
-      id="breadcrumb-jsonld"
+    <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
     />
@@ -79,8 +75,7 @@ export function ProductJsonLd({
   };
 
   return (
-    <Script
-      id="product-jsonld"
+    <script
       type="application/ld+json"
       dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
     />

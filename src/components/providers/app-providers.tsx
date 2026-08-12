@@ -1,7 +1,7 @@
 "use client";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ThemeProvider } from "next-themes";
+import { ThemeProvider } from "./theme-provider";
 import { useState } from "react";
 import { SmoothScrollProvider } from "./smooth-scroll";
 

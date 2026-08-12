@@ -30,8 +30,8 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
+      <OrganizationJsonLd />
       <AppProviders>
-        <OrganizationJsonLd />
         <LocaleShell
           header={
             <>
