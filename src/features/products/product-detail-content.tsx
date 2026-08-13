@@ -4,10 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import {
-  Calculator,
   Download,
   FileText,
-  Settings2,
   MessageSquare,
 } from "lucide-react";
 import { Link } from "@/i18n/routing";
@@ -136,18 +134,6 @@ export function ProductDetailContent({ product }: { product: Product }) {
           <Reveal delay={0.1}>
             <div className="flex flex-wrap gap-3">
               <Button asChild size="lg">
-                <Link href="/configurator">
-                  <Settings2 className="h-4 w-4" />
-                  {t("configure")}
-                </Link>
-              </Button>
-              <Button asChild variant="secondary" size="lg">
-                <Link href="/calculator">
-                  <Calculator className="h-4 w-4" />
-                  {t("calculate")}
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg">
                 <Link href="/contact">
                   <MessageSquare className="h-4 w-4" />
                   {t("requestQuote")}

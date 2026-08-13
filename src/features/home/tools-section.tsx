@@ -1,28 +1,11 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import {
-  Calculator,
-  Palette,
-  SlidersHorizontal,
-  ArrowUpRight,
-} from "lucide-react";
+import { SlidersHorizontal, ArrowUpRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Reveal } from "@/components/molecules/reveal";
 
 const tools = [
-  {
-    key: "calculator" as const,
-    href: "/calculator",
-    icon: Calculator,
-    descKey: "calculator" as const,
-  },
-  {
-    key: "visualizer" as const,
-    href: "/visualizer",
-    icon: Palette,
-    descKey: "visualizer" as const,
-  },
   {
     key: "configurator" as const,
     href: "/configurator",
@@ -33,20 +16,16 @@ const tools = [
 
 export function ToolsSection() {
   const nav = useTranslations("nav");
-  const calc = useTranslations("calculator");
-  const vis = useTranslations("visualizer");
   const conf = useTranslations("configurator");
 
   const subtitles: Record<(typeof tools)[number]["descKey"], string> = {
-    calculator: calc("subtitle"),
-    visualizer: vis("subtitle"),
     configurator: conf("subtitle"),
   };
 
   return (
     <section className="bg-secondary/30 py-20 md:py-28">
       <div className="container-comfort px-4 md:px-8">
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-5 md:grid-cols-1 md:max-w-md">
           {tools.map(({ key, href, icon: Icon, descKey }, i) => (
             <Reveal key={key} delay={i * 0.1}>
               <Link

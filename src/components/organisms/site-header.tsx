@@ -14,26 +14,23 @@ import { useUiStore } from "@/stores";
 const navKeys = [
   "products",
   "collections",
-  "projects",
   "about",
   "downloads",
+  "calculator",
   "contact",
 ] as const;
 
 const hrefMap: Record<(typeof navKeys)[number], string> = {
   products: "/products",
   collections: "/collections",
-  projects: "/projects",
   about: "/about",
   downloads: "/downloads",
+  calculator: "/calculator",
   contact: "/contact",
 };
 
 const mobileExtra = [
   { key: "production" as const, href: "/production" },
-  { key: "calculator" as const, href: "/calculator" },
-  { key: "visualizer" as const, href: "/visualizer" },
-  { key: "configurator" as const, href: "/configurator" },
   { key: "blog" as const, href: "/blog" },
   { key: "partners" as const, href: "/partners" },
 ];

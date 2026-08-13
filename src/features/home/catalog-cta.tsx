@@ -14,41 +14,41 @@ export function CatalogCta() {
   const nav = useTranslations("nav");
 
   return (
-    <section className="bg-secondary/50 py-20 md:py-28">
-      <div className="container-wide px-4 md:px-8">
+    <section className="bg-secondary/50 py-12 md:py-16">
+      <div className="container-comfort px-4 md:px-8">
         <Reveal>
-          <div className="relative overflow-hidden rounded-[2rem] bg-card shadow-soft">
-            <div className="grid lg:grid-cols-2">
-              <div className="relative hidden aspect-[4/3] lg:block">
+          <div className="relative overflow-hidden rounded-3xl bg-card shadow-soft">
+            <div className="grid lg:grid-cols-[minmax(0,280px)_1fr]">
+              <div className="relative hidden min-h-[220px] lg:block">
                 <Image
                   src={siteImages.catalog}
                   alt=""
                   fill
                   className="object-cover"
-                  sizes="50vw"
+                  sizes="280px"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent to-card/80" />
               </div>
 
-              <div className="flex flex-col justify-center px-8 py-12 md:px-12 md:py-16 lg:px-16">
-                <p className="text-xs font-medium tracking-[0.2em] uppercase text-accent">
+              <div className="flex flex-col justify-center px-6 py-8 md:px-8 md:py-10">
+                <p className="text-[11px] font-medium tracking-[0.2em] uppercase text-accent">
                   {downloads("catalogs")}
                 </p>
-                <h2 className="display mt-4 text-balance text-3xl text-foreground md:text-4xl">
+                <h2 className="display mt-2 text-balance text-2xl text-foreground md:text-3xl">
                   {downloads("title")}
                 </h2>
-                <p className="mt-4 max-w-md text-base leading-relaxed text-muted-foreground">
+                <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
                   {downloads("subtitle")}
                 </p>
 
-                <div className="mt-8 flex flex-wrap gap-3">
-                  <Button asChild variant="accent" size="lg">
+                <div className="mt-5 flex flex-wrap gap-2.5">
+                  <Button asChild variant="accent">
                     <Link href="/downloads">
                       <Download />
                       {hero("downloadCatalog")}
                     </Link>
                   </Button>
-                  <Button asChild variant="outline" size="lg">
+                  <Button asChild variant="outline">
                     <Link href="/contact">
                       {hero("requestSamples")}
                       <ArrowUpRight />
@@ -56,7 +56,7 @@ export function CatalogCta() {
                   </Button>
                 </div>
 
-                <p className="mt-6 text-sm text-muted-foreground">
+                <p className="mt-4 text-xs text-muted-foreground">
                   {nav("requestCatalog")}
                 </p>
               </div>

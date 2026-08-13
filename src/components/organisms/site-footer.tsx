@@ -40,19 +40,15 @@ export function SiteFooter() {
           <FooterCol title={t("products")}>
             <Link href="/products">{nav("products")}</Link>
             <Link href="/collections">{nav("collections")}</Link>
-            <Link href="/configurator">{nav("configurator")}</Link>
-            <Link href="/visualizer">{nav("visualizer")}</Link>
           </FooterCol>
           <FooterCol title={t("company")}>
             <Link href="/about">{nav("about")}</Link>
             <Link href="/production">{nav("production")}</Link>
-            <Link href="/projects">{nav("projects")}</Link>
             <Link href="/partners">{nav("partners")}</Link>
             <Link href="/blog">{nav("blog")}</Link>
           </FooterCol>
           <FooterCol title={t("support")}>
             <Link href="/downloads">{nav("downloads")}</Link>
-            <Link href="/calculator">{nav("calculator")}</Link>
             <Link href="/contact">{nav("contact")}</Link>
             <Link href="/ar">AR</Link>
           </FooterCol>
