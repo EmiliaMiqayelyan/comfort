@@ -362,7 +362,7 @@ export function ProductForm({ product }: { product?: Product }) {
                   value={form.modelUrl}
                   onChange={(e) => update("modelUrl", e.target.value)}
                   className={adminFieldClass}
-                  placeholder="/models/product.glb"
+                  placeholder="/models/retro.glb"
                 />
               </Field>
               <Field label="Video URL">

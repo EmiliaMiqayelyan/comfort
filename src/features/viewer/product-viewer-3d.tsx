@@ -25,6 +25,7 @@ import {
 import { Button } from "@/components/atoms/button";
 import { cn } from "@/lib/utils";
 import { useViewerStore } from "@/stores";
+import { DEFAULT_PRODUCT_MODEL_URL } from "@/lib/product-model";
 
 const COLOR_SWATCHES = [
   "#F7F7F4",
@@ -44,6 +45,7 @@ const ENVIRONMENT_OPTIONS = [
 const LIGHTING_OPTIONS = ["studio", "soft", "dramatic", "product"] as const;
 
 export interface ProductViewer3DProps {
+  modelUrl?: string;
   color?: string;
   height?: number;
   depth?: number;
@@ -80,6 +82,7 @@ const ViewerCanvas = dynamic(
 );
 
 export function ProductViewer3D({
+  modelUrl,
   color: colorProp,
   height = 80,
   depth = 16,
@@ -191,6 +194,7 @@ export function ProductViewer3D({
         fallback={<ViewerSkeleton className="h-full min-h-[420px] w-full" />}
       >
         <ViewerCanvas
+          modelUrl={modelUrl || DEFAULT_PRODUCT_MODEL_URL}
           color={activeColor}
           scale={scale}
           autoRotate={autoRotate}

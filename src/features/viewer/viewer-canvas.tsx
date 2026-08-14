@@ -1,21 +1,25 @@
 "use client";
 
-import { useRef } from "react";
+import { Suspense, useLayoutEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import {
+  Center,
   ContactShadows,
   Environment,
   Html,
   Line,
   OrbitControls,
   PerspectiveCamera,
+  useGLTF,
 } from "@react-three/drei";
-import type { Group } from "three";
+import { Box3, Color, Mesh, Vector3, type Group, type Material } from "three";
+import { DEFAULT_PRODUCT_MODEL_URL } from "@/lib/product-model";
 
 type LightingPreset = "studio" | "soft" | "dramatic" | "product";
 type EnvironmentPreset = "apartment" | "city" | "warehouse" | "sunset";
 
 interface ViewerCanvasProps {
+  modelUrl?: string;
   color: string;
   scale: { h: number; d: number };
   autoRotate: boolean;
@@ -38,7 +42,10 @@ const LIGHTING_PRESETS: Record<
   product: { ambient: 0.55, key: 1.0, fill: 0.45 },
 };
 
+const DEFAULT_TINT = "#f7f7f4";
+
 export function ViewerCanvas({
+  modelUrl = DEFAULT_PRODUCT_MODEL_URL,
   color,
   scale,
   autoRotate,
@@ -50,6 +57,8 @@ export function ViewerCanvas({
   heightMm,
   depthMm,
 }: ViewerCanvasProps) {
+  const url = modelUrl.trim() || DEFAULT_PRODUCT_MODEL_URL;
+
   return (
     <Canvas
       className="h-full min-h-[420px] w-full"
@@ -57,7 +66,7 @@ export function ViewerCanvas({
       dpr={[1, 2]}
       gl={{ preserveDrawingBuffer: true, antialias: true }}
     >
-      <PerspectiveCamera makeDefault position={[0.28, 0.12, 0.42]} fov={38} />
+      <PerspectiveCamera makeDefault position={[0.42, 0.2, 0.55]} fov={38} />
       <color attach="background" args={["#f5f5f2"]} />
       <ambientLight intensity={LIGHTING_PRESETS[lighting].ambient} />
       <directionalLight
@@ -71,34 +80,38 @@ export function ViewerCanvas({
       />
       <Environment preset={environment} />
       <ContactShadows
-        position={[0, -0.08, 0]}
+        position={[0, 0, 0]}
         opacity={0.35}
         scale={2.2}
         blur={2.4}
         far={1.2}
       />
-      <BaseboardMesh
-        color={color}
-        scale={scale}
-        autoRotate={autoRotate}
-        exploded={exploded}
-        wireframe={wireframe}
-        showDimensions={showDimensions}
-        heightMm={heightMm}
-        depthMm={depthMm}
-      />
+      <Suspense fallback={null}>
+        <GltfProduct
+          url={url}
+          color={color}
+          scale={scale}
+          autoRotate={autoRotate}
+          exploded={exploded}
+          wireframe={wireframe}
+          showDimensions={showDimensions}
+          heightMm={heightMm}
+          depthMm={depthMm}
+        />
+      </Suspense>
       <OrbitControls
         enablePan
         enableZoom
-        minDistance={0.18}
-        maxDistance={1.2}
+        minDistance={0.22}
+        maxDistance={2.4}
         maxPolarAngle={Math.PI / 2.05}
       />
     </Canvas>
   );
 }
 
-function BaseboardMesh({
+function GltfProduct({
+  url,
   color,
   scale,
   autoRotate,
@@ -107,9 +120,62 @@ function BaseboardMesh({
   showDimensions,
   heightMm,
   depthMm,
-}: Omit<ViewerCanvasProps, "lighting" | "environment">) {
+}: {
+  url: string;
+  color: string;
+  scale: { h: number; d: number };
+  autoRotate: boolean;
+  exploded: boolean;
+  wireframe: boolean;
+  showDimensions: boolean;
+  heightMm: number;
+  depthMm: number;
+}) {
   const groupRef = useRef<Group>(null);
-  const explode = exploded ? 0.035 : 0;
+  const { scene } = useGLTF(url);
+  const instance = useMemo(() => scene.clone(true), [scene]);
+
+  const fit = useMemo(() => {
+    const box = new Box3().setFromObject(instance);
+    const size = box.getSize(new Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z, 0.0001);
+    const target = 0.38 * Math.max(scale.h, scale.d, 0.6);
+    return {
+      s: target / maxDim,
+      size,
+    };
+  }, [instance, scale.d, scale.h]);
+
+  useLayoutEffect(() => {
+    let meshIndex = 0;
+    instance.traverse((obj) => {
+      if (!(obj instanceof Mesh)) return;
+      obj.castShadow = true;
+      obj.receiveShadow = true;
+
+      if (!obj.userData.restPosition) {
+        obj.userData.restPosition = obj.position.clone();
+      }
+      const rest = obj.userData.restPosition as Vector3;
+      if (exploded) {
+        obj.position.set(
+          rest.x,
+          rest.y + meshIndex * 0.018,
+          rest.z + (meshIndex % 2 === 0 ? 0.012 : -0.008),
+        );
+        meshIndex += 1;
+      } else {
+        obj.position.copy(rest);
+      }
+
+      const materials = Array.isArray(obj.material)
+        ? obj.material
+        : [obj.material];
+      for (const mat of materials) {
+        applyViewerMaterial(mat, color, wireframe);
+      }
+    });
+  }, [color, exploded, instance, wireframe]);
 
   useFrame((_, delta) => {
     if (autoRotate && groupRef.current) {
@@ -117,60 +183,44 @@ function BaseboardMesh({
     }
   });
 
-  const h = 0.16 * scale.h;
-  const d = 0.032 * scale.d;
-  const w = 0.55;
-
-  const materialProps = {
-    color,
-    wireframe,
-    roughness: wireframe ? 1 : 0.42,
-    metalness: wireframe ? 0 : 0.08,
-  };
+  const h = fit.size.y * fit.s;
+  const d = fit.size.z * fit.s;
+  const w = fit.size.x * fit.s;
 
   return (
-    <group ref={groupRef} position={[0, -0.02, 0]}>
-      <mesh
-        castShadow
-        receiveShadow
-        position={[0, h * 0.42 + explode, -d * 0.15 - explode]}
-      >
-        <boxGeometry args={[w, h * 0.84, d * 0.55]} />
-        <meshStandardMaterial {...materialProps} />
-      </mesh>
-
-      <mesh
-        castShadow
-        receiveShadow
-        position={[0, h * 0.92 + explode * 1.4, d * 0.08 + explode]}
-      >
-        <boxGeometry args={[w, d * 0.75, d * 0.95]} />
-        <meshStandardMaterial {...materialProps} />
-      </mesh>
-
-      <mesh
-        castShadow
-        receiveShadow
-        position={[0, h * 0.08 - explode, d * 0.22 + explode * 0.8]}
-      >
-        <boxGeometry args={[w, d * 0.55, d * 0.7]} />
-        <meshStandardMaterial {...materialProps} />
-      </mesh>
-
-      <mesh
-        castShadow
-        position={[w * 0.18, h * 0.62, d * 0.42 + explode * 1.2]}
-        rotation={[0, 0, -0.08]}
-      >
-        <boxGeometry args={[w * 0.12, h * 0.18, d * 0.35]} />
-        <meshStandardMaterial {...materialProps} roughness={0.55} />
-      </mesh>
-
+    <group ref={groupRef}>
+      <group scale={fit.s}>
+        <Center bottom>
+          <primitive object={instance} />
+        </Center>
+      </group>
       {showDimensions && (
         <DimensionOverlay heightMm={heightMm} depthMm={depthMm} h={h} d={d} w={w} />
       )}
     </group>
   );
+}
+
+function applyViewerMaterial(
+  mat: Material,
+  color: string,
+  wireframe: boolean,
+) {
+  if ("wireframe" in mat) {
+    (mat as Material & { wireframe: boolean }).wireframe = wireframe;
+  }
+  if (!("color" in mat) || !mat.color) return;
+
+  const colored = mat as Material & { color: Color };
+  if (!mat.userData.baseColor) {
+    mat.userData.baseColor = colored.color.clone();
+  }
+  const keepOriginal = color.toLowerCase() === DEFAULT_TINT;
+  if (keepOriginal) {
+    colored.color.copy(mat.userData.baseColor as Color);
+  } else {
+    colored.color.set(color);
+  }
 }
 
 function DimensionOverlay({
@@ -240,3 +290,5 @@ function DimensionOverlay({
     </group>
   );
 }
+
+useGLTF.preload(DEFAULT_PRODUCT_MODEL_URL);

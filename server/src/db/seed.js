@@ -6,6 +6,13 @@ dotenv.config();
 
 const L = (en, ru, am) => ({ en, ru, am });
 const productImage = "/products/plinth.jpg";
+const productGallery = [
+  productImage,
+  "https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?auto=format&fit=crop&w=1600&q=80",
+  "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=2400&q=80",
+];
 
 const colors = [
   { id: "white", name: L("Polar White", "Полярный белый", "Բևեռային սպիտակ"), hex: "#F7F7F4" },
@@ -99,7 +106,7 @@ async function seed() {
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'HD polymer', 'Matte', ?, ?, ?, '[]', ?, ?, 'in_stock')`,
       [
         id, slug, sku, JSON.stringify(name), JSON.stringify(description), categoryId, collectionId,
-        JSON.stringify([productImage]), height, width, depth, length,
+        JSON.stringify(productGallery), height, width, depth, length,
         JSON.stringify(colors), JSON.stringify(textures),
         JSON.stringify([{ key: "height", label: L("Height", "Высота", "Բարձրություն"), value: String(height), unit: "mm" }]),
         price, featured,

@@ -66,7 +66,7 @@ export function ProductDetailContent({ product }: { product: Product }) {
               <div className="flex gap-3 overflow-x-auto pb-2">
                 {product.images.map((img, i) => (
                   <button
-                    key={img}
+                    key={`${img}-${i}`}
                     type="button"
                     onClick={() => setActiveImage(i)}
                     className={cn(
@@ -95,6 +95,7 @@ export function ProductDetailContent({ product }: { product: Product }) {
                 {t("viewer3d")}
               </p>
               <ProductViewer3D
+                modelUrl={product.modelUrl}
                 height={product.height}
                 depth={product.depth}
                 className="min-h-[420px]"
