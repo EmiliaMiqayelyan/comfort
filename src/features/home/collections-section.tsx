@@ -40,12 +40,13 @@ export function CollectionsSection() {
                 href={`/collections/${collection.slug}`}
                 className="group block overflow-hidden rounded-3xl bg-card shadow-soft transition hover:shadow-[0_24px_64px_rgba(17,24,39,0.12)]"
               >
-                <div className="relative aspect-[3/4] overflow-hidden">
+                <div className="relative aspect-[4/3] overflow-hidden bg-[#ecece8]">
                   <Image
                     src={collection.image}
                     alt={getLocalized(collection.name, locale)}
                     fill
-                    className="object-cover transition duration-700 ease-out group-hover:scale-105"
+                    quality={95}
+                    className="object-cover object-center transition duration-700 ease-out group-hover:scale-[1.03]"
                     sizes="(max-width: 768px) 280px, 240px"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />

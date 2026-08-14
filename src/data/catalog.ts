@@ -1,6 +1,6 @@
 import type { LocalizedString, Product, ProductCategory, Collection, Project, BlogPost } from "@/types";
 
-const PRODUCT_RENDER = "/products/plinth.png";
+const PRODUCT_RENDER = "/products/plinth.jpg";
 
 const img = {
   product: PRODUCT_RENDER,

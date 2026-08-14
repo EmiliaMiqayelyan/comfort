@@ -48,12 +48,13 @@ export function ProductDetailContent({ product }: { product: Product }) {
       <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
         <div className="space-y-6">
           <Reveal>
-            <div className="relative aspect-[4/5] overflow-hidden rounded-3xl bg-muted shadow-soft">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-[#ecece8] shadow-soft">
               <Image
                 src={product.images[activeImage] ?? product.images[0]}
                 alt={getLocalized(product.name, locale)}
                 fill
-                className="object-cover"
+                quality={95}
+                className="object-cover object-center"
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 priority
               />

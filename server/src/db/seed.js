@@ -5,7 +5,7 @@ import { pool } from "./pool.js";
 dotenv.config();
 
 const L = (en, ru, am) => ({ en, ru, am });
-const productImage = "/products/plinth.png";
+const productImage = "/products/plinth.jpg";
 
 const colors = [
   { id: "white", name: L("Polar White", "Полярный белый", "Բևեռային սպիտակ"), hex: "#F7F7F4" },
@@ -150,7 +150,7 @@ async function seed() {
 
   await pool.query(
     `INSERT INTO media_assets (id, name, type, url, folder, size) VALUES
-     ('m1', 'plinth.png', 'image', '/products/plinth.png', 'products', 240000)`,
+     ('m1', 'plinth.jpg', 'image', '/products/plinth.jpg', 'products', 240000)`,
   );
 
   console.log("Seed complete. Admin: admin@comfort.am / admin");

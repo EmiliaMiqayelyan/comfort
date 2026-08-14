@@ -74,12 +74,13 @@ export function CollectionsGrid() {
               href={`/collections/${collection.slug}`}
               className="group relative flex flex-col overflow-hidden rounded-3xl bg-card shadow-soft transition hover:shadow-[0_24px_64px_rgba(17,24,39,0.12)]"
             >
-              <div className="relative aspect-[4/5] overflow-hidden">
+              <div className="relative aspect-[4/3] overflow-hidden bg-[#ecece8]">
                 <Image
                   src={collection.image}
                   alt={getLocalized(collection.name, locale)}
                   fill
-                  className="object-cover transition duration-700 group-hover:scale-105"
+                  quality={95}
+                  className="object-cover object-center transition duration-700 group-hover:scale-[1.03]"
                   sizes="(max-width: 640px) 100vw, 33vw"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />

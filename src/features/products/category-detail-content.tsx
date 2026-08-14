@@ -40,7 +40,8 @@ export function CategoryDetailContent({
             src={category.image}
             alt={getLocalized(category.name, locale)}
             fill
-            className="object-cover"
+            quality={95}
+            className="object-cover object-center"
             sizes="(max-width: 1024px) 100vw, 45vw"
             priority
           />

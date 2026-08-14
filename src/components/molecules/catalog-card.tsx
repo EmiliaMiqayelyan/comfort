@@ -28,13 +28,14 @@ export function CatalogCard({
         className,
       )}
     >
-      <div className="relative aspect-[5/4] w-full shrink-0 overflow-hidden bg-[#ecece8]">
+      <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-[#ecece8]">
         <Image
           src={image}
           alt={title}
           fill
+          quality={95}
           className="object-cover object-center transition duration-700 ease-out group-hover:scale-[1.03]"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 20vw"
         />
       </div>
 
