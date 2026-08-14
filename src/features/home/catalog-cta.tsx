@@ -43,10 +43,10 @@ export function CatalogCta() {
 
                 <div className="mt-5 flex flex-wrap gap-2.5">
                   <Button asChild variant="accent">
-                    <Link href="/downloads">
+                    <a href="/downloads/catalog.pdf" download>
                       <Download />
                       {hero("downloadCatalog")}
-                    </Link>
+                    </a>
                   </Button>
                   <Button asChild variant="outline">
                     <Link href="/contact">

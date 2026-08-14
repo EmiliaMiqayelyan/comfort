@@ -342,7 +342,6 @@ export function ProductConfigurator({ className }: { className?: string }) {
             color={selectedColor?.hex}
             height={selectedProduct?.height}
             depth={selectedProduct?.depth}
-            className="min-h-[480px] lg:min-h-[560px]"
           />
 
           <div className="glass rounded-3xl p-6 shadow-soft">

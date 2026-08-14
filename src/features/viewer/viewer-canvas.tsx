@@ -61,7 +61,8 @@ export function ViewerCanvas({
 
   return (
     <Canvas
-      className="h-full min-h-[420px] w-full"
+      className="h-full w-full"
+      style={{ width: "100%", height: "100%", display: "block" }}
       shadows
       dpr={[1, 2]}
       gl={{ preserveDrawingBuffer: true, antialias: true }}

@@ -77,7 +77,7 @@ const ViewerCanvas = dynamic(
   () => import("./viewer-canvas").then((mod) => mod.ViewerCanvas),
   {
     ssr: false,
-    loading: () => <ViewerSkeleton className="h-full min-h-[420px] w-full" />,
+    loading: () => <ViewerSkeleton className="h-full w-full" />,
   },
 );
 
@@ -112,7 +112,11 @@ export function ProductViewer3D({
 
   useEffect(() => {
     const onFullscreenChange = () => {
-      setIsFullscreen(Boolean(document.fullscreenElement));
+      const active = Boolean(document.fullscreenElement);
+      setIsFullscreen(active);
+      requestAnimationFrame(() => {
+        window.dispatchEvent(new Event("resize"));
+      });
     };
     document.addEventListener("fullscreenchange", onFullscreenChange);
     return () =>
@@ -186,27 +190,31 @@ export function ProductViewer3D({
     <div
       ref={containerRef}
       className={cn(
-        "relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-b from-muted/30 to-background shadow-soft",
+        "relative w-full overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-b from-muted/30 to-background shadow-soft",
         className,
+        isFullscreen
+          ? "h-full max-h-none rounded-none"
+          : "h-[420px] max-h-[420px]",
+        "fullscreen:h-full fullscreen:max-h-none fullscreen:rounded-none",
       )}
     >
-      <Suspense
-        fallback={<ViewerSkeleton className="h-full min-h-[420px] w-full" />}
-      >
-        <ViewerCanvas
-          modelUrl={modelUrl || DEFAULT_PRODUCT_MODEL_URL}
-          color={activeColor}
-          scale={scale}
-          autoRotate={autoRotate}
-          exploded={exploded}
-          wireframe={wireframe}
-          showDimensions={showDimensions}
-          lighting={lighting}
-          environment={environment}
-          heightMm={height}
-          depthMm={depth}
-        />
-      </Suspense>
+      <div className="absolute inset-0">
+        <Suspense fallback={<ViewerSkeleton className="h-full w-full" />}>
+          <ViewerCanvas
+            modelUrl={modelUrl || DEFAULT_PRODUCT_MODEL_URL}
+            color={activeColor}
+            scale={scale}
+            autoRotate={autoRotate}
+            exploded={exploded}
+            wireframe={wireframe}
+            showDimensions={showDimensions}
+            lighting={lighting}
+            environment={environment}
+            heightMm={height}
+            depthMm={depth}
+          />
+        </Suspense>
+      </div>
 
       <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-end p-4">
         <div className="glass pointer-events-auto flex flex-wrap items-center gap-2 rounded-2xl p-2 shadow-soft">

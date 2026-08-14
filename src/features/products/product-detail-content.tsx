@@ -98,7 +98,6 @@ export function ProductDetailContent({ product }: { product: Product }) {
                 modelUrl={product.modelUrl}
                 height={product.height}
                 depth={product.depth}
-                className="min-h-[420px]"
               />
             </div>
           </Reveal>
@@ -191,6 +190,7 @@ export function ProductDetailContent({ product }: { product: Product }) {
                     <li key={file.id}>
                       <a
                         href={file.url}
+                        download
                         className="group flex items-center gap-4 rounded-2xl border border-border bg-card px-5 py-4 transition hover:border-foreground/20 hover:shadow-soft"
                       >
                         <span className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">

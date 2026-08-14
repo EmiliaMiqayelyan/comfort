@@ -97,10 +97,10 @@ export function HeroSection() {
                 size="lg"
                 className="border-white/25 bg-white/10 text-white hover:bg-white/20"
               >
-                <Link href="/downloads">
+                <a href="/downloads/catalog.pdf" download>
                   <Download />
                   {t("downloadCatalog")}
-                </Link>
+                </a>
               </Button>
               <Button
                 asChild

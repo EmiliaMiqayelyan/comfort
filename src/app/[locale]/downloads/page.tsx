@@ -50,13 +50,26 @@ export default async function DownloadsPage({
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "downloads" });
 
-  const allDownloads = products.flatMap((product) =>
-    product.downloads.map((file) => ({
-      ...file,
-      productName: product.name,
-      productSlug: product.slug,
-    })),
-  );
+  const catalogDownload = {
+    id: "catalog-2026",
+    type: "pdf" as const,
+    label: { en: "Product catalog 2026", ru: "Каталог продукции 2026", am: "Արտադրանքի կատալոգ 2026" },
+    url: "/downloads/catalog.pdf",
+    size: "PDF",
+    productName: { en: "Comfort", ru: "Comfort", am: "Comfort" },
+    productSlug: "catalog",
+  };
+
+  const allDownloads = [
+    catalogDownload,
+    ...products.flatMap((product) =>
+      product.downloads.map((file) => ({
+        ...file,
+        productName: product.name,
+        productSlug: product.slug,
+      })),
+    ),
+  ];
 
   return (
     <section className="bg-background py-20 md:py-28">
@@ -93,6 +106,7 @@ export default async function DownloadsPage({
                 <li>
                   <a
                     href={file.url}
+                    download
                     className="group flex items-center gap-5 rounded-3xl border border-border bg-card px-6 py-5 transition hover:border-foreground/20 hover:shadow-soft"
                   >
                     <span className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
