@@ -65,7 +65,7 @@ src/
   app/[locale]/     # Locale-scoped routes + admin
   components/       # Atomic UI (atoms / molecules / organisms)
   features/         # Home, viewer, configurator, calculator, visualizer, AR, admin, CMS UI
-  data/             # Catalog mock data
+  data/             # Localized helpers and site images
   i18n/             # next-intl routing + request config
   stores/           # Zustand (UI, auth, viewer, calculator, visualizer)
   lib/              # Utils + calculator engine
@@ -88,4 +88,4 @@ messages/           # am / ru / en dictionaries
 
 ## Notes
 
-Catalog, CMS, and media currently use in-memory / mock data suitable for UI development. Wire to your API, headless CMS, or database for production content and auth.
+Catalog, CMS, and media persist in MySQL through the Express API (`npm run dev:api`).

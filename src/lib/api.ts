@@ -11,7 +11,6 @@ import type {
   Role,
 } from "@/types";
 import { useAuthStore } from "@/stores";
-import { enableMockMode, isMockMode, mockLogin, mockStore } from "@/lib/mock-store";
 
 export const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -86,279 +85,92 @@ export async function apiGet<T>(path: string): Promise<T | null> {
   }
 }
 
-async function withReadFallback<T>(
-  apiCall: () => Promise<T | null>,
-  mockCall: () => T,
-): Promise<T> {
-  if (isMockMode()) return mockCall();
-  const result = await apiCall();
-  if (result !== null) return result;
-  enableMockMode();
-  return mockCall();
-}
-
-async function withWriteFallback<T>(
-  apiCall: () => Promise<T>,
-  mockCall: () => T,
-): Promise<T> {
-  if (isMockMode()) return mockCall();
-  try {
-    return await apiCall();
-  } catch {
-    enableMockMode();
-    return mockCall();
-  }
-}
-
-async function withWriteVoidFallback(
-  apiCall: () => Promise<void>,
-  mockCall: () => void,
-): Promise<void> {
-  if (isMockMode()) return mockCall();
-  try {
-    return await apiCall();
-  } catch {
-    enableMockMode();
-    return mockCall();
-  }
-}
-
 export const catalogApi = {
-  products: () =>
-    withReadFallback(
-      () => apiGet<Product[]>("/products"),
-      () => mockStore.getProducts(),
-    ),
-  product: (slug: string) =>
-    withReadFallback(
-      () => apiGet<Product>(`/products/${slug}`),
-      () => mockStore.getProduct(slug),
-    ),
-  categories: () =>
-    withReadFallback(
-      () => apiGet<ProductCategory[]>("/categories"),
-      () => mockStore.getCategories(),
-    ),
-  category: (slug: string) =>
-    withReadFallback(
-      () => apiGet<ProductCategory>(`/categories/${slug}`),
-      () => mockStore.getCategory(slug),
-    ),
-  collections: () =>
-    withReadFallback(
-      () => apiGet<Collection[]>("/collections"),
-      () => mockStore.getCollections(),
-    ),
-  collection: (slug: string) =>
-    withReadFallback(
-      () => apiGet<Collection>(`/collections/${slug}`),
-      () => mockStore.getCollection(slug),
-    ),
-  projects: () =>
-    withReadFallback(
-      () => apiGet<Project[]>("/projects"),
-      () => mockStore.getProjects(),
-    ),
-  project: (slug: string) =>
-    withReadFallback(
-      () => apiGet<Project>(`/projects/${slug}`),
-      () => mockStore.getProject(slug),
-    ),
-  posts: () =>
-    withReadFallback(
-      () => apiGet<BlogPost[]>("/blog"),
-      () => mockStore.getPosts(),
-    ),
-  post: (slug: string) =>
-    withReadFallback(
-      () => apiGet<BlogPost>(`/blog/${slug}`),
-      () => mockStore.getPost(slug),
-    ),
-  certificates: () =>
-    withReadFallback(
-      () => apiGet<Certificate[]>("/certificates"),
-      () => mockStore.getCertificates(),
-    ),
-  certificate: (id: string) =>
-    withReadFallback(
-      () => apiGet<Certificate>(`/certificates/${id}`),
-      () => mockStore.getCertificate(id),
-    ),
+  products: () => apiGet<Product[]>("/products"),
+  product: (slug: string) => apiGet<Product>(`/products/${slug}`),
+  categories: () => apiGet<ProductCategory[]>("/categories"),
+  category: (slug: string) => apiGet<ProductCategory>(`/categories/${slug}`),
+  collections: () => apiGet<Collection[]>("/collections"),
+  collection: (slug: string) => apiGet<Collection>(`/collections/${slug}`),
+  projects: () => apiGet<Project[]>("/projects"),
+  project: (slug: string) => apiGet<Project>(`/projects/${slug}`),
+  posts: () => apiGet<BlogPost[]>("/blog"),
+  post: (slug: string) => apiGet<BlogPost>(`/blog/${slug}`),
+  certificates: () => apiGet<Certificate[]>("/certificates"),
+  certificate: (id: string) => apiGet<Certificate>(`/certificates/${id}`),
   downloads: (publicOnly = false) =>
-    withReadFallback(
-      () => apiGet<DownloadFile[]>(`/downloads${publicOnly ? "?public=true" : ""}`),
-      () => mockStore.getDownloads(publicOnly),
-    ),
-  download: (id: string) =>
-    withReadFallback(
-      () => apiGet<DownloadFile>(`/downloads/${id}`),
-      () => mockStore.getDownload(id),
-    ),
-  contactSettings: () =>
-    withReadFallback(
-      () => apiGet<ContactSettings>("/settings/contact"),
-      () => mockStore.getContactSettings(),
-    ),
+    apiGet<DownloadFile[]>(`/downloads${publicOnly ? "?public=true" : ""}`),
+  download: (id: string) => apiGet<DownloadFile>(`/downloads/${id}`),
+  contactSettings: () => apiGet<ContactSettings>("/settings/contact"),
 };
 
 export const adminApi = {
+  products: () => apiFetch<Product[]>("/products"),
+  product: (id: string) => apiFetch<Product>(`/products/${id}`),
+  categories: () => apiFetch<ProductCategory[]>("/categories"),
+  collections: () => apiFetch<Collection[]>("/collections"),
   createProduct: (payload: Partial<Product>) =>
-    withWriteFallback(
-      () => apiFetch<Product>("/products", { method: "POST", body: JSON.stringify(payload) }),
-      () => mockStore.createProduct(payload),
-    ),
+    apiFetch<Product>("/products", { method: "POST", body: JSON.stringify(payload) }),
   updateProduct: (id: string, payload: Partial<Product>) =>
-    withWriteFallback(
-      () => apiFetch<Product>(`/products/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
-      () => mockStore.updateProduct(id, payload),
-    ),
+    apiFetch<Product>(`/products/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
   deleteProduct: (id: string) =>
-    withWriteVoidFallback(
-      () => apiFetch<void>(`/products/${id}`, { method: "DELETE" }),
-      () => mockStore.deleteProduct(id),
-    ),
+    apiFetch<void>(`/products/${id}`, { method: "DELETE" }),
   createCategory: (payload: Partial<ProductCategory>) =>
-    withWriteFallback(
-      () => apiFetch<ProductCategory>("/categories", { method: "POST", body: JSON.stringify(payload) }),
-      () => mockStore.createCategory(payload),
-    ),
+    apiFetch<ProductCategory>("/categories", { method: "POST", body: JSON.stringify(payload) }),
   updateCategory: (id: string, payload: Partial<ProductCategory>) =>
-    withWriteFallback(
-      () => apiFetch<ProductCategory>(`/categories/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
-      () => mockStore.updateCategory(id, payload),
-    ),
+    apiFetch<ProductCategory>(`/categories/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
   deleteCategory: (id: string) =>
-    withWriteVoidFallback(
-      () => apiFetch<void>(`/categories/${id}`, { method: "DELETE" }),
-      () => mockStore.deleteCategory(id),
-    ),
+    apiFetch<void>(`/categories/${id}`, { method: "DELETE" }),
   createCollection: (payload: Partial<Collection>) =>
-    withWriteFallback(
-      () => apiFetch<Collection>("/collections", { method: "POST", body: JSON.stringify(payload) }),
-      () => mockStore.createCollection(payload),
-    ),
+    apiFetch<Collection>("/collections", { method: "POST", body: JSON.stringify(payload) }),
   updateCollection: (id: string, payload: Partial<Collection>) =>
-    withWriteFallback(
-      () => apiFetch<Collection>(`/collections/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
-      () => mockStore.updateCollection(id, payload),
-    ),
+    apiFetch<Collection>(`/collections/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
   deleteCollection: (id: string) =>
-    withWriteVoidFallback(
-      () => apiFetch<void>(`/collections/${id}`, { method: "DELETE" }),
-      () => mockStore.deleteCollection(id),
-    ),
+    apiFetch<void>(`/collections/${id}`, { method: "DELETE" }),
   createProject: (payload: Partial<Project>) =>
-    withWriteFallback(
-      () => apiFetch<Project>("/projects", { method: "POST", body: JSON.stringify(payload) }),
-      () => mockStore.createProject(payload),
-    ),
+    apiFetch<Project>("/projects", { method: "POST", body: JSON.stringify(payload) }),
   updateProject: (id: string, payload: Partial<Project>) =>
-    withWriteFallback(
-      () => apiFetch<Project>(`/projects/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
-      () => mockStore.updateProject(id, payload),
-    ),
+    apiFetch<Project>(`/projects/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
   deleteProject: (id: string) =>
-    withWriteVoidFallback(
-      () => apiFetch<void>(`/projects/${id}`, { method: "DELETE" }),
-      () => mockStore.deleteProject(id),
-    ),
+    apiFetch<void>(`/projects/${id}`, { method: "DELETE" }),
   createPost: (payload: Partial<BlogPost>) =>
-    withWriteFallback(
-      () => apiFetch<BlogPost>("/blog", { method: "POST", body: JSON.stringify(payload) }),
-      () => mockStore.createPost(payload),
-    ),
+    apiFetch<BlogPost>("/blog", { method: "POST", body: JSON.stringify(payload) }),
   updatePost: (id: string, payload: Partial<BlogPost>) =>
-    withWriteFallback(
-      () => apiFetch<BlogPost>(`/blog/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
-      () => mockStore.updatePost(id, payload),
-    ),
+    apiFetch<BlogPost>(`/blog/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
   deletePost: (id: string) =>
-    withWriteVoidFallback(
-      () => apiFetch<void>(`/blog/${id}`, { method: "DELETE" }),
-      () => mockStore.deletePost(id),
-    ),
-  users: () =>
-    withReadFallback(
-      () => apiGet<AuthUser[]>("/users"),
-      () => mockStore.getUsers(),
-    ),
+    apiFetch<void>(`/blog/${id}`, { method: "DELETE" }),
+  users: () => apiFetch<AuthUser[]>("/users"),
   createCertificate: (payload: Partial<Certificate>) =>
-    withWriteFallback(
-      () => apiFetch<Certificate>("/certificates", { method: "POST", body: JSON.stringify(payload) }),
-      () => mockStore.createCertificate(payload),
-    ),
+    apiFetch<Certificate>("/certificates", { method: "POST", body: JSON.stringify(payload) }),
   updateCertificate: (id: string, payload: Partial<Certificate>) =>
-    withWriteFallback(
-      () => apiFetch<Certificate>(`/certificates/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
-      () => mockStore.updateCertificate(id, payload),
-    ),
+    apiFetch<Certificate>(`/certificates/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
   deleteCertificate: (id: string) =>
-    withWriteVoidFallback(
-      () => apiFetch<void>(`/certificates/${id}`, { method: "DELETE" }),
-      () => mockStore.deleteCertificate(id),
-    ),
+    apiFetch<void>(`/certificates/${id}`, { method: "DELETE" }),
   createDownload: (payload: Partial<DownloadFile>) =>
-    withWriteFallback(
-      () => apiFetch<DownloadFile>("/downloads", { method: "POST", body: JSON.stringify(payload) }),
-      () => mockStore.createDownload(payload),
-    ),
+    apiFetch<DownloadFile>("/downloads", { method: "POST", body: JSON.stringify(payload) }),
   updateDownload: (id: string, payload: Partial<DownloadFile>) =>
-    withWriteFallback(
-      () => apiFetch<DownloadFile>(`/downloads/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
-      () => mockStore.updateDownload(id, payload),
-    ),
+    apiFetch<DownloadFile>(`/downloads/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
   deleteDownload: (id: string) =>
-    withWriteVoidFallback(
-      () => apiFetch<void>(`/downloads/${id}`, { method: "DELETE" }),
-      () => mockStore.deleteDownload(id),
-    ),
-  contactMessages: () =>
-    withReadFallback(
-      () => apiGet<ContactMessage[]>("/contact"),
-      () => mockStore.getContactMessages(),
-    ),
+    apiFetch<void>(`/downloads/${id}`, { method: "DELETE" }),
+  contactMessages: () => apiFetch<ContactMessage[]>("/contact"),
   updateContactSettings: (payload: ContactSettings) =>
-    withWriteFallback(
-      () => apiFetch<ContactSettings>("/settings/contact", { method: "PUT", body: JSON.stringify(payload) }),
-      () => mockStore.updateContactSettings(payload),
-    ),
+    apiFetch<ContactSettings>("/settings/contact", { method: "PUT", body: JSON.stringify(payload) }),
 };
 
 export async function uploadFile(file: File) {
-  if (isMockMode()) return mockStore.uploadFile(file);
-  try {
-    const body = new FormData();
-    body.append("file", file);
-    return await apiFetch<{ id: string; name: string; url: string; size: number; type: string }>("/media", {
-      method: "POST",
-      body,
-    });
-  } catch {
-    enableMockMode();
-    return mockStore.uploadFile(file);
-  }
+  const body = new FormData();
+  body.append("file", file);
+  return apiFetch<{ id: string; name: string; url: string; size: number; type: string }>("/media", {
+    method: "POST",
+    body,
+  });
 }
 
-export async function loginRequest(email: string, password: string) {
-  if (isMockMode()) {
-    const mock = mockLogin(email, password);
-    if (!mock) throw new ApiError("Invalid credentials", 401);
-    return mock;
-  }
-
-  try {
-    return await apiFetch<{ token: string; user: AuthUser }>("/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    });
-  } catch {
-    const mock = mockLogin(email, password);
-    if (mock) {
-      enableMockMode();
-      return mock;
-    }
-    throw new ApiError("Invalid credentials", 401);
-  }
+export function loginRequest(email: string, password: string) {
+  return apiFetch<{ token: string; user: AuthUser }>("/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
 }
 
 export function sendContact(payload: {
@@ -368,25 +180,9 @@ export function sendContact(payload: {
   company?: string;
   message: string;
 }) {
-  if (isMockMode()) {
-    mockStore.addContactMessage({
-      id: `msg-${Date.now()}`,
-      ...payload,
-      created_at: new Date().toISOString(),
-    });
-    return Promise.resolve({ ok: true, id: "mock-contact" });
-  }
   return apiFetch<{ ok: boolean; id: string }>("/contact", {
     method: "POST",
     body: JSON.stringify(payload),
-  }).catch(() => {
-    enableMockMode();
-    mockStore.addContactMessage({
-      id: `msg-${Date.now()}`,
-      ...payload,
-      created_at: new Date().toISOString(),
-    });
-    return { ok: true, id: "mock-contact" };
   });
 }
 
@@ -395,16 +191,8 @@ export function saveCalculator(payload: {
   input: unknown;
   result: unknown;
 }) {
-  if (isMockMode()) {
-    return Promise.resolve({ ok: true, id: "mock-calculator" });
-  }
   return apiFetch<{ ok: boolean; id: string }>("/calculator", {
     method: "POST",
     body: JSON.stringify(payload),
-  }).catch(() => {
-    enableMockMode();
-    return { ok: true, id: "mock-calculator" };
   });
 }
-
-export { isMockMode } from "@/lib/mock-store";

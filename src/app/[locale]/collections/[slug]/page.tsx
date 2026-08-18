@@ -6,12 +6,13 @@ import { Link } from "@/i18n/routing";
 import { Reveal } from "@/components/molecules/reveal";
 import { ProductCardGrid } from "@/components/molecules/product-card";
 import { Badge } from "@/components/atoms/badge";
-import { collections, getLocalized } from "@/data/catalog";
-import { loadCollection, loadProducts } from "@/lib/catalog-source";
+import { getLocalized } from "@/data/catalog";
+import { loadCollection, loadCollections, loadProducts } from "@/lib/catalog-source";
 import { routing } from "@/i18n/routing";
 import { ArrowLeft } from "lucide-react";
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const collections = await loadCollections();
   return routing.locales.flatMap((locale) =>
     collections.map((collection) => ({ locale, slug: collection.slug })),
   );

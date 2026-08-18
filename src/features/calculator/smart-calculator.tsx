@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, type ReactNode } from "react";
+import { useCallback, useEffect, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Calculator, Download, Mail, Save } from "lucide-react";
 import { jsPDF } from "jspdf";
@@ -11,7 +11,7 @@ import { Badge } from "@/components/atoms/badge";
 import { cn, formatPrice } from "@/lib/utils";
 import { calculateMaterials } from "@/lib/calculator";
 import { saveCalculator } from "@/lib/api";
-import { products } from "@/data/catalog";
+import { useProducts } from "@/hooks/use-catalog";
 import { useCalculatorStore } from "@/stores";
 
 const CORNER_TYPES = [
@@ -25,10 +25,20 @@ export function SmartCalculator({ className }: { className?: string }) {
   const tc = useTranslations("common");
   const locale = useLocale();
   const { input, result, setInput, setResult } = useCalculatorStore();
+  const { data: products = [] } = useProducts();
+
+  useEffect(() => {
+    if (!products.length) return;
+    if (!input.profileType || !products.some((product) => product.id === input.profileType)) {
+      setInput("profileType", products[0].id);
+    }
+  }, [input.profileType, products, setInput]);
+
+  const selectedProduct = products.find((product) => product.id === input.profileType) ?? products[0];
 
   const handleCalculate = useCallback(() => {
-    setResult(calculateMaterials(input));
-  }, [input, setResult]);
+    setResult(calculateMaterials(input, selectedProduct?.price ?? 0));
+  }, [input, selectedProduct, setResult]);
 
   const handlePdf = useCallback(() => {
     if (!result) return;

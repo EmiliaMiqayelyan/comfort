@@ -5,7 +5,7 @@ import { Upload } from "lucide-react";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { adminFieldClass } from "@/features/admin/form-ui";
-import { uploadFile } from "@/lib/api";
+import { ApiError, uploadFile } from "@/lib/api";
 
 export function FileUploadField({
   value,
@@ -29,8 +29,8 @@ export function FileUploadField({
     try {
       const uploaded = await uploadFile(file);
       onChange(uploaded.url, { name: uploaded.name, size: uploaded.size });
-    } catch {
-      setError("Upload failed");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Upload failed");
     } finally {
       setUploading(false);
       if (inputRef.current) inputRef.current.value = "";
@@ -68,7 +68,14 @@ export function FileUploadField({
       {value && /\.(png|jpe?g|webp|gif|svg)$/i.test(value.split("?")[0]) && (
         <div className="relative h-24 w-36 overflow-hidden rounded-xl border border-white/10 bg-[#0b0f17]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={value} alt="" className="h-full w-full object-cover" />
+          <img
+            src={value}
+            alt=""
+            className="h-full w-full object-cover"
+            onError={(event) => {
+              event.currentTarget.style.display = "none";
+            }}
+          />
         </div>
       )}
     </div>

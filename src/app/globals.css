@@ -3,8 +3,48 @@
 @custom-variant dark (&:is(.dark *));
 
 @font-face {
+  font-family: "Bainsley";
+  src: url("/fonts/bainsley-regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Arm Hmk's Bebas Neue";
+  src: url("/fonts/bebas-neue-arm.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: "Comfort Bebas";
   src: url("/fonts/bebas-neue-arm.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Ofont Ru Bebas Neue";
+  src: url("/fonts/ofont-ru-bebas-neue.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Ofont Ru Bebas Neue Light";
+  src: url("/fonts/ofont-ru-bebas-neue-light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Mardoto Regular";
+  src: url("/fonts/mardoto-regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -14,6 +54,14 @@
   font-family: "Mardoto";
   src: url("/fonts/mardoto-regular.ttf") format("truetype");
   font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Montserratarm Light";
+  src: url("/fonts/montserratarm-light.otf") format("opentype");
+  font-weight: 300;
   font-style: normal;
   font-display: swap;
 }
@@ -56,8 +104,8 @@
     rgba(24, 24, 25, 0.28) 55%,
     rgba(24, 24, 25, 0.12) 100%
   );
-  --font-comfort-sans: "Mardoto", "Montserratarm", "Noto Sans Armenian", system-ui, sans-serif;
-  --font-comfort-display: "Comfort Bebas", "Mardoto", sans-serif;
+  --font-comfort-sans: "Bainsley", "Mardoto Regular", "Montserratarm Light", "Noto Sans Armenian", system-ui, sans-serif;
+  --font-comfort-display: "Arm Hmk's Bebas Neue", "Ofont Ru Bebas Neue", "Bainsley", sans-serif;
 }
 
 .dark {

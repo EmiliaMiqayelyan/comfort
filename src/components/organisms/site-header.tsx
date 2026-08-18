@@ -9,6 +9,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Link, usePathname } from "@/i18n/routing";
 import { locales, localeNames, type AppLocale } from "@/i18n/config";
 import { Button } from "@/components/atoms/button";
+import { BrandLogo } from "@/components/atoms/brand-logo";
 import { cn } from "@/lib/utils";
 import { useUiStore } from "@/stores";
 
@@ -66,15 +67,8 @@ export function SiteHeader() {
       )}
     >
       <div className="container-wide flex items-center justify-between gap-4">
-        <Link href="/" className="group flex items-center gap-3">
-          <span className="flex h-11 items-center rounded-xl bg-[#e9e8e3] px-2 transition group-hover:scale-[1.02]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/brand/comfort-logo.svg"
-              alt="Comfort"
-              className="h-8 w-auto object-contain"
-            />
-          </span>
+        <Link href="/" className="shrink-0 transition hover:opacity-90">
+          <BrandLogo heightClassName="h-12 md:h-14" />
         </Link>
 
         <nav className="hidden items-center gap-7 lg:flex" aria-label="Main">

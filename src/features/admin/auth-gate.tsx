@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "@/i18n/routing";
 import { useAuthStore } from "@/stores";
+import { ApiError, apiFetch } from "@/lib/api";
 import { Loader2 } from "lucide-react";
 
 interface AuthGateProps {
@@ -24,7 +25,20 @@ export function AuthGate({ children }: AuthGateProps) {
     if (!user || !token) {
       if (user && !token) logout();
       router.replace("/admin/login");
+      return;
     }
+
+    let cancelled = false;
+    apiFetch("/auth/me").catch((err) => {
+      if (cancelled) return;
+      if (err instanceof ApiError && (err.status === 401 || err.status === 404)) {
+        logout();
+        router.replace("/admin/login");
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
   }, [ready, user, token, router, logout]);
 
   if (!ready || !user || !token) {

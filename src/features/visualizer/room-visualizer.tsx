@@ -21,11 +21,9 @@ import { Badge } from "@/components/atoms/badge";
 import { Label } from "@/components/atoms/label";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types";
-import {
-  getLocalized,
-  products,
-  roomPresets,
-} from "@/data/catalog";
+import { getLocalized, roomPresets } from "@/data/catalog";
+import { useCategories, useProducts } from "@/hooks/use-catalog";
+import { productsInCategory } from "@/lib/category-tree";
 import { useVisualizerStore } from "@/stores";
 
 const LIGHTING_OPTIONS = [
@@ -61,6 +59,8 @@ export function RoomVisualizer({ className }: { className?: string }) {
     setField,
     reset,
   } = useVisualizerStore();
+  const { data: products = [] } = useProducts();
+  const { data: categories = [] } = useCategories();
 
   const activePreset = useMemo(
     () => roomPresets.find((p) => p.id === presetId) ?? roomPresets[0],
@@ -69,17 +69,29 @@ export function RoomVisualizer({ className }: { className?: string }) {
 
   const displayImage = roomImage ?? activePreset.image;
 
+  const categoryIdBySlug = (slug: string) =>
+    categories.find((category) => category.slug === slug)?.id ?? "";
+
   const baseboardProducts = useMemo(
-    () => products.filter((p) => p.categoryId === "cat-baseboards"),
-    [],
+    () =>
+      products.filter((product) =>
+        productsInCategory(categoryIdBySlug("baseboards"), categories, product.categoryId),
+      ),
+    [categories, products],
   );
   const panelProducts = useMemo(
-    () => products.filter((p) => p.categoryId === "cat-panels"),
-    [],
+    () =>
+      products.filter((product) =>
+        productsInCategory(categoryIdBySlug("wall-panels"), categories, product.categoryId),
+      ),
+    [categories, products],
   );
   const moldingProducts = useMemo(
-    () => products.filter((p) => p.categoryId === "cat-moldings"),
-    [],
+    () =>
+      products.filter((product) =>
+        productsInCategory(categoryIdBySlug("moldings"), categories, product.categoryId),
+      ),
+    [categories, products],
   );
 
   const lightingOverlay = useMemo(() => {

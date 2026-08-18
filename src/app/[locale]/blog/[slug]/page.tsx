@@ -5,14 +5,15 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Reveal } from "@/components/molecules/reveal";
 import { Badge } from "@/components/atoms/badge";
-import { blogPosts, getLocalized } from "@/data/catalog";
+import { getLocalized } from "@/data/catalog";
 import { loadPost, loadPosts } from "@/lib/catalog-source";
 import { routing } from "@/i18n/routing";
 import { ArrowLeft } from "lucide-react";
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const posts = await loadPosts();
   return routing.locales.flatMap((locale) =>
-    blogPosts.map((post) => ({ locale, slug: post.slug })),
+    posts.map((post) => ({ locale, slug: post.slug })),
   );
 }
 

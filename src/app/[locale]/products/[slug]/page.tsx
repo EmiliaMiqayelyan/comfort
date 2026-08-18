@@ -4,19 +4,22 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { ProductDetailContent } from "@/features/products/product-detail-content";
 import { CategoryDetailContent } from "@/features/products/category-detail-content";
-import { products, categories, getLocalized } from "@/data/catalog";
-import { loadProduct, loadCategory } from "@/lib/catalog-source";
+import { getLocalized } from "@/data/catalog";
+import { loadProduct, loadCategory, loadProducts, loadCategories } from "@/lib/catalog-source";
 import { routing } from "@/i18n/routing";
 import { ArrowLeft } from "lucide-react";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/json-ld";
 
-export function generateStaticParams() {
-  const productParams = products.map((product) => ({ slug: product.slug }));
-  const categoryParams = categories.map((category) => ({ slug: category.slug }));
+export async function generateStaticParams() {
+  const [products, categories] = await Promise.all([loadProducts(), loadCategories()]);
+  const slugs = [
+    ...products.map((product) => product.slug),
+    ...categories.map((category) => category.slug),
+  ];
   return routing.locales.flatMap((locale) =>
-    [...productParams, ...categoryParams].map((item) => ({
+    slugs.map((slug) => ({
       locale,
-      slug: item.slug,
+      slug,
     })),
   );
 }

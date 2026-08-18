@@ -3,6 +3,7 @@ const organizationLd = {
   "@type": "Organization",
   name: "Comfort",
   url: "https://comfort.am",
+  logo: "https://comfort.am/brand/comfort-logo.svg",
   description:
     "Premium architectural interior products: baseboards, 3D wall panels, moldings and profiles.",
   address: {

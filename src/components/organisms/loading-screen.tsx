@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect } from "react";
 import { useUiStore } from "@/stores";
+import { BrandLogo } from "@/components/atoms/brand-logo";
 
 export function LoadingScreen() {
   const { loadingScreen, setLoadingScreen } = useUiStore();
@@ -26,15 +27,12 @@ export function LoadingScreen() {
     >
       <div className="text-center">
         <motion.div
-          className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-accent/40"
-          animate={reduceMotion ? undefined : { rotate: [0, 8, -8, 0], scale: [1, 1.04, 1] }}
+          className="mx-auto mb-6"
+          animate={reduceMotion ? undefined : { scale: [1, 1.04, 1], opacity: [0.9, 1, 0.9] }}
           transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
         >
-          <span className="display text-2xl tracking-[0.2em] text-accent">C</span>
+          <BrandLogo heightClassName="h-20" className="mx-auto" />
         </motion.div>
-        <p className="display text-sm tracking-[0.35em] uppercase text-comfort-sand/70">
-          Comfort
-        </p>
         <div className="mx-auto mt-8 h-px w-40 overflow-hidden bg-white/10">
           <motion.div
             className="h-full bg-accent"

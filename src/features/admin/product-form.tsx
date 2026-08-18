@@ -22,7 +22,7 @@ import { FileUploadField } from "@/features/admin/file-upload";
 import { AdminSelect } from "@/features/admin/admin-select";
 import { CategoryAttachFields } from "@/features/admin/category-attach";
 import { useQueryClient } from "@tanstack/react-query";
-import { ApiError, adminApi, catalogApi } from "@/lib/api";
+import { ApiError, adminApi } from "@/lib/api";
 import { getLocalized } from "@/data/catalog";
 import type {
   Collection,
@@ -30,29 +30,49 @@ import type {
   Product,
   ProductCategory,
   ProductColor,
+  ProductDownload,
   ProductSpec,
   ProductTexture,
 } from "@/types";
 
+function uid(prefix: string) {
+  return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
 const emptyColor = (): ProductColor => ({
-  id: `color-${Date.now()}`,
+  id: uid("color"),
   name: emptyLocalized(),
   hex: "#F7F7F4",
 });
 
 const emptyTexture = (): ProductTexture => ({
-  id: `texture-${Date.now()}`,
+  id: uid("texture"),
   name: emptyLocalized(),
   mapUrl: "",
   previewUrl: "",
 });
 
 const emptySpec = (): ProductSpec => ({
-  key: `spec-${Date.now()}`,
+  key: uid("spec"),
   label: emptyLocalized(),
   value: "",
   unit: "mm",
 });
+
+const emptyDownload = (): ProductDownload => ({
+  id: uid("dl"),
+  type: "pdf",
+  label: emptyLocalized(),
+  url: "",
+  size: "",
+});
+
+function formatBytes(size?: number) {
+  if (!size) return "";
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 function toForm(product?: Product): Omit<Product, "id"> {
   return {
@@ -88,6 +108,7 @@ export function ProductForm({ product }: { product?: Product }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const isEdit = Boolean(product);
+  const label = (key: string, fallback: string) => (t.has(key) ? t(key) : fallback);
   const [form, setForm] = useState(() => toForm(product));
   const [slugLocked, setSlugLocked] = useState(isEdit);
   const [saving, setSaving] = useState(false);
@@ -96,13 +117,15 @@ export function ProductForm({ product }: { product?: Product }) {
   const [collections, setCollections] = useState<Collection[]>([]);
 
   useEffect(() => {
-    Promise.all([catalogApi.categories(), catalogApi.collections()]).then(
-      ([nextCategories, nextCollections]) => {
-        setCategories(nextCategories ?? []);
-        setCollections(nextCollections ?? []);
-      },
-    );
-  }, []);
+    Promise.all([adminApi.categories(), adminApi.collections()])
+      .then(([nextCategories, nextCollections]) => {
+        setCategories(nextCategories);
+        setCollections(nextCollections);
+      })
+      .catch((err) => {
+        setError(err instanceof ApiError ? err.message : t("apiUnavailable"));
+      });
+  }, [t]);
 
 
   const update = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => {
@@ -121,11 +144,7 @@ export function ProductForm({ product }: { product?: Product }) {
     e.preventDefault();
     setError(null);
 
-    if (!form.name.en.trim() || !form.slug.trim() || !form.sku.trim()) {
-      setError(t("requiredFields"));
-      return;
-    }
-    if (!form.categoryId || !form.collectionId) {
+    if (!form.name.en.trim() || !form.slug.trim() || !form.sku.trim() || !form.categoryId) {
       setError(t("requiredFields"));
       return;
     }
@@ -133,12 +152,14 @@ export function ProductForm({ product }: { product?: Product }) {
     setSaving(true);
     const payload: Partial<Product> = {
       ...form,
+      collectionId: form.collectionId || "",
       images: form.images.map((url) => url.trim()).filter(Boolean),
       modelUrl: form.modelUrl?.trim() || undefined,
       videoUrl: form.videoUrl?.trim() || undefined,
       colors: form.colors.filter((color) => color.name.en.trim() || color.hex),
       textures: form.textures.filter((texture) => texture.name.en.trim()),
       specs: form.specs.filter((spec) => spec.label.en.trim() || spec.value.trim()),
+      downloads: form.downloads.filter((file) => file.url.trim() || file.label.en.trim()),
     };
 
     try {
@@ -243,13 +264,18 @@ export function ProductForm({ product }: { product?: Product }) {
               />
               <Field label={t("collections")}>
                 <AdminSelect
-                  value={form.collectionId}
-                  onValueChange={(value) => update("collectionId", value)}
+                  value={form.collectionId || "__none__"}
+                  onValueChange={(value) =>
+                    update("collectionId", value === "__none__" ? "" : value)
+                  }
                   placeholder={t("selectCollection")}
-                  options={collections.map((collection) => ({
-                    value: collection.id,
-                    label: getLocalized(collection.name, locale),
-                  }))}
+                  options={[
+                    { value: "__none__", label: label("noCollection", "No collection") },
+                    ...collections.map((collection) => ({
+                      value: collection.id,
+                      label: getLocalized(collection.name, locale),
+                    })),
+                  ]}
                 />
               </Field>
             </div>
@@ -355,19 +381,20 @@ export function ProductForm({ product }: { product?: Product }) {
               </Button>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              <Field label="3D model URL">
-                <Input
-                  value={form.modelUrl}
-                  onChange={(e) => update("modelUrl", e.target.value)}
-                  className={adminFieldClass}
-                  placeholder="/models/retro.glb"
+              <Field label="3D model">
+                <FileUploadField
+                  value={form.modelUrl ?? ""}
+                  accept=".glb,.gltf,.usdz,model/gltf-binary"
+                  label={t("upload")}
+                  onChange={(modelUrl) => update("modelUrl", modelUrl)}
                 />
               </Field>
-              <Field label="Video URL">
-                <Input
-                  value={form.videoUrl}
-                  onChange={(e) => update("videoUrl", e.target.value)}
-                  className={adminFieldClass}
+              <Field label="Video">
+                <FileUploadField
+                  value={form.videoUrl ?? ""}
+                  accept="video/*,.mp4,.webm"
+                  label={t("upload")}
+                  onChange={(videoUrl) => update("videoUrl", videoUrl)}
                 />
               </Field>
             </div>
@@ -442,25 +469,27 @@ export function ProductForm({ product }: { product?: Product }) {
                   />
                   <div className="grid gap-4 md:grid-cols-2">
                     <Field label="Map URL">
-                      <Input
+                      <FileUploadField
                         value={texture.mapUrl}
-                        onChange={(e) => {
+                        accept="image/*"
+                        label={t("upload")}
+                        onChange={(mapUrl) => {
                           const textures = [...form.textures];
-                          textures[index] = { ...texture, mapUrl: e.target.value };
+                          textures[index] = { ...texture, mapUrl };
                           update("textures", textures);
                         }}
-                        className={adminFieldClass}
                       />
                     </Field>
                     <Field label="Preview URL">
-                      <Input
+                      <FileUploadField
                         value={texture.previewUrl}
-                        onChange={(e) => {
+                        accept="image/*"
+                        label={t("upload")}
+                        onChange={(previewUrl) => {
                           const textures = [...form.textures];
-                          textures[index] = { ...texture, previewUrl: e.target.value };
+                          textures[index] = { ...texture, previewUrl };
                           update("textures", textures);
                         }}
-                        className={adminFieldClass}
                       />
                     </Field>
                   </div>
@@ -553,6 +582,105 @@ export function ProductForm({ product }: { product?: Product }) {
               >
                 <Plus />
                 {t("addSpec")}
+              </Button>
+            </div>
+          </Section>
+
+          <Section title={t("downloads")}>
+            <div className="space-y-6">
+              {form.downloads.map((file, index) => (
+                <div key={file.id} className="space-y-3 rounded-xl border border-white/5 p-4">
+                  <LocalizedInputs
+                    label={t("name")}
+                    value={file.label}
+                    onChange={(label) => {
+                      const downloads = [...form.downloads];
+                      downloads[index] = { ...file, label };
+                      update("downloads", downloads);
+                    }}
+                  />
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <Field label={label("fileType", "File type")}>
+                      <AdminSelect
+                        value={file.type}
+                        onValueChange={(type) => {
+                          const downloads = [...form.downloads];
+                          downloads[index] = {
+                            ...file,
+                            type: type as ProductDownload["type"],
+                          };
+                          update("downloads", downloads);
+                        }}
+                        placeholder="PDF"
+                        options={[
+                          { value: "pdf", label: "PDF" },
+                          { value: "dwg", label: "DWG" },
+                          { value: "bim", label: "BIM" },
+                          { value: "3ds", label: "3DS" },
+                          { value: "sketchup", label: "SketchUp" },
+                          { value: "texture", label: "Texture" },
+                          { value: "guide", label: "Guide" },
+                        ]}
+                      />
+                    </Field>
+                    <Field label={label("fileSize", "File size")}>
+                      <Input
+                        value={file.size ?? ""}
+                        onChange={(e) => {
+                          const downloads = [...form.downloads];
+                          downloads[index] = { ...file, size: e.target.value };
+                          update("downloads", downloads);
+                        }}
+                        className={adminFieldClass}
+                        placeholder="1.2 MB"
+                      />
+                    </Field>
+                  </div>
+                  <FileUploadField
+                    value={file.url}
+                    accept=".pdf,.dwg,.zip,.doc,.docx,.skp,.ifc,.rfa,.3ds"
+                    label={t("upload")}
+                    onChange={(url, uploaded) => {
+                      const downloads = [...form.downloads];
+                      downloads[index] = {
+                        ...file,
+                        url,
+                        size: uploaded ? formatBytes(uploaded.size) : file.size,
+                        label: file.label.en.trim()
+                          ? file.label
+                          : {
+                              en: uploaded?.name ?? file.label.en,
+                              ru: file.label.ru,
+                              am: file.label.am,
+                            },
+                      };
+                      update("downloads", downloads);
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    className="text-zinc-400 hover:text-red-400"
+                    onClick={() =>
+                      update(
+                        "downloads",
+                        form.downloads.filter((_, i) => i !== index),
+                      )
+                    }
+                  >
+                    <Trash2 />
+                    {t("delete")}
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-xl border-white/10 text-zinc-200"
+                onClick={() => update("downloads", [...form.downloads, emptyDownload()])}
+              >
+                <Plus />
+                {label("addDownload", "Add download")}
               </Button>
             </div>
           </Section>

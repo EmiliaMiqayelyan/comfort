@@ -7,6 +7,7 @@ import { Link, usePathname, useRouter } from "@/i18n/routing";
 import { useAuthStore } from "@/stores";
 import { Button } from "@/components/atoms/button";
 import { Badge } from "@/components/atoms/badge";
+import { BrandLogo } from "@/components/atoms/brand-logo";
 import { cn } from "@/lib/utils";
 import { getNavForRole } from "./role-nav";
 import { RoleBadge } from "./data-table";
@@ -44,12 +45,13 @@ export function AdminShell({ children }: AdminShellProps) {
           collapsed ? "w-[72px]" : "w-64",
         )}
       >
-        <div className="flex h-16 shrink-0 items-center justify-between border-b border-white/5 px-4">
-          {!collapsed && (
-            <div>
-              <p className="text-sm font-semibold tracking-wide text-zinc-50">Comfort</p>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-zinc-500">{t("title")}</p>
-            </div>
+        <div className="flex h-16 shrink-0 items-center justify-between gap-1 border-b border-white/5 px-3">
+          {!collapsed ? (
+            <Link href="/" className="min-w-0 px-1">
+              <BrandLogo heightClassName="h-10" />
+            </Link>
+          ) : (
+            <span className="display px-1 text-lg text-accent">C</span>
           )}
           <Button
             variant="ghost"

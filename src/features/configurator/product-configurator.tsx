@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, type ReactNode } from "react";
+import { useEffect, useMemo, type ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Bookmark, Share2, Sparkles } from "lucide-react";
 import { Link } from "@/i18n/routing";
@@ -8,7 +8,8 @@ import { Button } from "@/components/atoms/button";
 import { Badge } from "@/components/atoms/badge";
 import { Label } from "@/components/atoms/label";
 import { cn, formatPrice } from "@/lib/utils";
-import { collections, getLocalized, products } from "@/data/catalog";
+import { getLocalized } from "@/data/catalog";
+import { useCollections, useProducts } from "@/hooks/use-catalog";
 import { useConfiguratorStore } from "@/stores";
 import { ProductViewer3D } from "@/features/viewer/product-viewer-3d";
 
@@ -53,13 +54,33 @@ export function ProductConfigurator({ className }: { className?: string }) {
     toggleConnector,
     reset,
   } = useConfiguratorStore();
+  const { data: products = [] } = useProducts();
+  const { data: collections = [] } = useCollections();
+
+  useEffect(() => {
+    if (!products.length) return;
+    const current = products.find((product) => product.id === modelId);
+    if (current) {
+      if (!collectionId && current.collectionId) {
+        setField("collectionId", current.collectionId);
+      }
+      return;
+    }
+    const fromCollection = collectionId
+      ? products.find((product) => product.collectionId === collectionId)
+      : undefined;
+    const next = fromCollection ?? products[0];
+    if (!next) return;
+    setField("collectionId", next.collectionId || collectionId);
+    setField("modelId", next.id);
+  }, [collectionId, modelId, products, setField]);
 
   const collectionProducts = useMemo(
     () =>
       products.filter(
         (p) => !collectionId || p.collectionId === collectionId,
       ),
-    [collectionId],
+    [collectionId, products],
   );
 
   const selectedProduct = useMemo(

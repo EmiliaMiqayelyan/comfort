@@ -41,42 +41,54 @@ categoriesRouter.get("/:slug", async (req, res) => {
 });
 
 categoriesRouter.post("/", requireAuth, async (req, res) => {
-  const id = req.body.id || randomUUID();
-  await query(
-    "INSERT INTO categories (id, slug, name, description, image, parent_id) VALUES (?, ?, ?, ?, ?, ?)",
-    [
-      id,
-      req.body.slug,
-      JSON.stringify(req.body.name),
-      JSON.stringify(req.body.description),
-      req.body.image,
-      req.body.parentId || null,
-    ],
-  );
-  const rows = await query("SELECT *, 0 AS product_count FROM categories WHERE id = ?", [id]);
-  res.status(201).json(mapCategory(rows[0]));
+  try {
+    const id = req.body.id || randomUUID();
+    await query(
+      "INSERT INTO categories (id, slug, name, description, image, parent_id) VALUES (?, ?, ?, ?, ?, ?)",
+      [
+        id,
+        req.body.slug,
+        JSON.stringify(req.body.name),
+        JSON.stringify(req.body.description),
+        req.body.image,
+        req.body.parentId || null,
+      ],
+    );
+    const rows = await query("SELECT *, 0 AS product_count FROM categories WHERE id = ?", [id]);
+    return res.status(201).json(mapCategory(rows[0]));
+  } catch (error) {
+    return handleDbError(res, error);
+  }
 });
 
 categoriesRouter.put("/:id", requireAuth, async (req, res) => {
-  await query(
-    "UPDATE categories SET slug=?, name=?, description=?, image=?, parent_id=? WHERE id=?",
-    [
-      req.body.slug,
-      JSON.stringify(req.body.name),
-      JSON.stringify(req.body.description),
-      req.body.image,
-      req.body.parentId || null,
-      req.params.id,
-    ],
-  );
-  const rows = await query("SELECT *, 0 AS product_count FROM categories WHERE id = ?", [req.params.id]);
-  if (!rows[0]) return res.status(404).json({ message: "Category not found" });
-  res.json(mapCategory(rows[0]));
+  try {
+    await query(
+      "UPDATE categories SET slug=?, name=?, description=?, image=?, parent_id=? WHERE id=?",
+      [
+        req.body.slug,
+        JSON.stringify(req.body.name),
+        JSON.stringify(req.body.description),
+        req.body.image,
+        req.body.parentId || null,
+        req.params.id,
+      ],
+    );
+    const rows = await query("SELECT *, 0 AS product_count FROM categories WHERE id = ?", [req.params.id]);
+    if (!rows[0]) return res.status(404).json({ message: "Category not found" });
+    return res.json(mapCategory(rows[0]));
+  } catch (error) {
+    return handleDbError(res, error);
+  }
 });
 
 categoriesRouter.delete("/:id", requireAuth, async (req, res) => {
-  await query("DELETE FROM categories WHERE id = ?", [req.params.id]);
-  res.status(204).end();
+  try {
+    await query("DELETE FROM categories WHERE id = ?", [req.params.id]);
+    return res.status(204).end();
+  } catch (error) {
+    return handleDbError(res, error);
+  }
 });
 
 collectionsRouter.get("/", async (_req, res) => {
@@ -108,26 +120,38 @@ collectionsRouter.get("/:slug", async (req, res) => {
 });
 
 collectionsRouter.post("/", requireAuth, async (req, res) => {
-  const id = req.body.id || randomUUID();
-  await query(
-    "INSERT INTO collections (id, slug, name, description, image, style) VALUES (?, ?, ?, ?, ?, ?)",
-    [id, req.body.slug, JSON.stringify(req.body.name), JSON.stringify(req.body.description), req.body.image, req.body.style],
-  );
-  const rows = await query("SELECT *, 0 AS product_count FROM collections WHERE id = ?", [id]);
-  res.status(201).json(mapCollection(rows[0]));
+  try {
+    const id = req.body.id || randomUUID();
+    await query(
+      "INSERT INTO collections (id, slug, name, description, image, style) VALUES (?, ?, ?, ?, ?, ?)",
+      [id, req.body.slug, JSON.stringify(req.body.name), JSON.stringify(req.body.description), req.body.image, req.body.style],
+    );
+    const rows = await query("SELECT *, 0 AS product_count FROM collections WHERE id = ?", [id]);
+    return res.status(201).json(mapCollection(rows[0]));
+  } catch (error) {
+    return handleDbError(res, error);
+  }
 });
 
 collectionsRouter.put("/:id", requireAuth, async (req, res) => {
-  await query(
-    "UPDATE collections SET slug=?, name=?, description=?, image=?, style=? WHERE id=?",
-    [req.body.slug, JSON.stringify(req.body.name), JSON.stringify(req.body.description), req.body.image, req.body.style, req.params.id],
-  );
-  const rows = await query("SELECT *, 0 AS product_count FROM collections WHERE id = ?", [req.params.id]);
-  if (!rows[0]) return res.status(404).json({ message: "Collection not found" });
-  res.json(mapCollection(rows[0]));
+  try {
+    await query(
+      "UPDATE collections SET slug=?, name=?, description=?, image=?, style=? WHERE id=?",
+      [req.body.slug, JSON.stringify(req.body.name), JSON.stringify(req.body.description), req.body.image, req.body.style, req.params.id],
+    );
+    const rows = await query("SELECT *, 0 AS product_count FROM collections WHERE id = ?", [req.params.id]);
+    if (!rows[0]) return res.status(404).json({ message: "Collection not found" });
+    return res.json(mapCollection(rows[0]));
+  } catch (error) {
+    return handleDbError(res, error);
+  }
 });
 
 collectionsRouter.delete("/:id", requireAuth, async (req, res) => {
-  await query("DELETE FROM collections WHERE id = ?", [req.params.id]);
-  res.status(204).end();
+  try {
+    await query("DELETE FROM collections WHERE id = ?", [req.params.id]);
+    return res.status(204).end();
+  } catch (error) {
+    return handleDbError(res, error);
+  }
 });

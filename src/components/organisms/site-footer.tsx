@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Separator } from "@/components/atoms/separator";
+import { BrandLogo } from "@/components/atoms/brand-logo";
 import { catalogApi } from "@/lib/api";
 import { getLocalized } from "@/data/catalog";
 import type { ContactSettings } from "@/types";
@@ -23,11 +24,8 @@ export function SiteFooter() {
     <footer className="border-t border-border bg-comfort-ink text-comfort-sand">
       <div className="container-wide grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-12">
         <div className="lg:col-span-4">
-          <div className="mb-5 flex items-center gap-3">
-            <span className="flex h-12 items-center rounded-xl bg-[#e9e8e3] px-2">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/brand/comfort-logo.svg" alt="Comfort" className="h-9 w-auto" />
-            </span>
+          <div className="mb-5">
+            <BrandLogo heightClassName="h-14" />
           </div>
           <p className="max-w-sm text-sm leading-relaxed text-comfort-sand/65">
             {t("mission")}

@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Reveal } from "@/components/molecules/reveal";
 import { Badge } from "@/components/atoms/badge";
-import { products, getLocalized } from "@/data/catalog";
+import { getLocalized } from "@/data/catalog";
+import { loadProducts } from "@/lib/catalog-source";
+import { catalogApi } from "@/lib/api";
 import { Download, FileText } from "lucide-react";
 
 const DOWNLOAD_CATEGORIES = [
@@ -50,23 +52,22 @@ export default async function DownloadsPage({
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "downloads" });
 
-  const catalogDownload = {
-    id: "catalog-2026",
-    type: "pdf" as const,
-    label: { en: "Product catalog 2026", ru: "Каталог продукции 2026", am: "Արտադրանքի կատալոգ 2026" },
-    url: "/downloads/catalog.pdf",
-    size: "PDF",
-    productName: { en: "Comfort", ru: "Comfort", am: "Comfort" },
-    productSlug: "catalog",
-  };
+  const products = await loadProducts();
+  const files = (await catalogApi.downloads(true)) ?? [];
 
   const allDownloads = [
-    catalogDownload,
+    ...files.map((file) => ({
+      id: file.id,
+      type: file.category === "pdf" || file.category === "catalogs" ? "pdf" : "other",
+      label: file.title,
+      url: file.url,
+      size: file.size,
+      productName: file.title,
+    })),
     ...products.flatMap((product) =>
       product.downloads.map((file) => ({
         ...file,
         productName: product.name,
-        productSlug: product.slug,
       })),
     ),
   ];

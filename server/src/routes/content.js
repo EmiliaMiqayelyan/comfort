@@ -125,30 +125,39 @@ mediaRouter.get("/", requireAuth, async (_req, res) => {
   })));
 });
 
+function mediaType(file) {
+  const mime = file.mimetype || "";
+  const name = String(file.originalname || file.filename || "").toLowerCase();
+  if (mime.startsWith("image/") || /\.(png|jpe?g|webp|gif|svg)$/.test(name)) return "image";
+  if (mime.startsWith("video/") || /\.(mp4|webm|mov)$/.test(name)) return "video";
+  if (name.endsWith(".glb") || name.endsWith(".gltf")) return "glb";
+  if (name.endsWith(".usdz")) return "usdz";
+  if (/\.(jpg|jpeg|png|webp)$/.test(name) && /texture|map/.test(name)) return "texture";
+  if (mime.includes("pdf") || name.endsWith(".pdf")) return "pdf";
+  return "pdf";
+}
+
 mediaRouter.post("/", requireAuth, upload.single("file"), async (req, res) => {
   if (!req.file) return res.status(400).json({ message: "File is required" });
   const id = randomUUID();
   const url = `/uploads/${req.file.filename}`;
-  const mime = req.file.mimetype || "";
-  const type = mime.startsWith("image/")
-    ? "image"
-    : mime.startsWith("video/")
-      ? "video"
-      : mime.includes("pdf")
-        ? "pdf"
-        : "pdf";
-  await query(
-    "INSERT INTO media_assets (id, name, type, url, folder, size) VALUES (?, ?, ?, ?, 'uploads', ?)",
-    [id, req.file.originalname || req.file.filename, type, url, req.file.size],
-  );
-  res.status(201).json({
-    id,
-    name: req.file.originalname || req.file.filename,
-    type,
-    url,
-    folder: "uploads",
-    size: req.file.size,
-  });
+  const type = mediaType(req.file);
+  try {
+    await query(
+      "INSERT INTO media_assets (id, name, type, url, folder, size) VALUES (?, ?, ?, ?, 'uploads', ?)",
+      [id, req.file.originalname || req.file.filename, type, url, req.file.size],
+    );
+    return res.status(201).json({
+      id,
+      name: req.file.originalname || req.file.filename,
+      type,
+      url,
+      folder: "uploads",
+      size: req.file.size,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message || "Upload failed" });
+  }
 });
 
 contactRouter.post("/", async (req, res) => {

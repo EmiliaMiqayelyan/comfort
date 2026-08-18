@@ -1,17 +1,11 @@
 import type { CalculatorInput, CalculatorResult } from "@/types";
 
-const PROFILE_PRICES: Record<string, number> = {
-  "p-md101": 4200,
-  "p-classic": 4800,
-  "p-flat": 3900,
-  "p-led-profile": 7600,
-  "p-molding-elegant": 3200,
-  "p-panel-3d": 18900,
-};
-
 const PIECE_LENGTH_M = 2.4;
 
-export function calculateMaterials(input: CalculatorInput): CalculatorResult {
+export function calculateMaterials(
+  input: CalculatorInput,
+  unitPrice = 0,
+): CalculatorResult {
   const openingsDeduction = input.doorCount * 0.9 + input.windowCount * 0.3;
   const netPerimeter = Math.max(input.perimeter - openingsDeduction, 0);
   const wasteFactor = 1 + input.wastePercent / 100;
@@ -23,7 +17,7 @@ export function calculateMaterials(input: CalculatorInput): CalculatorResult {
   const adhesiveKg = input.includeAdhesive
     ? Number((totalLength * 0.12).toFixed(1))
     : 0;
-  const pricePerMeter = (PROFILE_PRICES[input.profileType] ?? 4200) / PIECE_LENGTH_M;
+  const pricePerMeter = unitPrice / PIECE_LENGTH_M;
   const estimatedPrice = Math.round(
     totalLength * pricePerMeter +
       connectors * 350 +

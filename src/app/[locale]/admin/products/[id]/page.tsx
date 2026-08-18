@@ -6,18 +6,29 @@ import { useTranslations } from "next-intl";
 import { AuthGate } from "@/features/admin/auth-gate";
 import { AdminShell } from "@/features/admin/admin-shell";
 import { ProductForm } from "@/features/admin/product-form";
-import { catalogApi } from "@/lib/api";
+import { ApiError, adminApi } from "@/lib/api";
 import type { Product } from "@/types";
 
 export default function AdminEditProductPage() {
   const params = useParams<{ id: string }>();
   const t = useTranslations("common");
+  const ta = useTranslations("admin");
   const [product, setProduct] = useState<Product | null | undefined>(undefined);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!params.id) return;
-    catalogApi.product(params.id).then((item) => setProduct(item));
-  }, [params.id]);
+    adminApi
+      .product(params.id)
+      .then((item) => {
+        setProduct(item);
+        setError(null);
+      })
+      .catch((err) => {
+        setProduct(null);
+        setError(err instanceof ApiError ? err.message : t("error"));
+      });
+  }, [params.id, t]);
 
   if (product === undefined) {
     return (
@@ -33,7 +44,7 @@ export default function AdminEditProductPage() {
     return (
       <AuthGate>
         <AdminShell>
-          <p className="text-sm text-zinc-400">{t("error")}</p>
+          <p className="text-sm text-red-300">{error || ta("apiUnavailable")}</p>
         </AdminShell>
       </AuthGate>
     );

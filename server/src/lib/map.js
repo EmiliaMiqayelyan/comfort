@@ -63,7 +63,7 @@ export function mapProduct(row) {
     name: parseJson(row.name, { en: "", ru: "", am: "" }),
     description: parseJson(row.description, { en: "", ru: "", am: "" }),
     categoryId: row.category_id,
-    collectionId: row.collection_id,
+    collectionId: row.collection_id || "",
     images: parseJson(row.images, []),
     modelUrl: row.model_url || undefined,
     videoUrl: row.video_url || undefined,

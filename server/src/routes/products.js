@@ -7,12 +7,12 @@ import { requireAuth } from "../middleware/auth.js";
 import { fillLocalized, handleDbError, localizedSchema } from "../lib/http.js";
 
 const productSchema = z.object({
-  slug: z.string().trim().min(1),
-  sku: z.string().trim().min(1),
+  slug: z.string().trim().min(1, "Slug is required"),
+  sku: z.string().trim().min(1, "SKU is required"),
   name: localizedSchema,
   description: localizedSchema.optional(),
-  categoryId: z.string().min(1),
-  collectionId: z.string().min(1),
+  categoryId: z.string().trim().min(1, "Category is required"),
+  collectionId: z.string().optional().nullable(),
   images: z.array(z.string()).optional(),
   modelUrl: z.string().optional().nullable(),
   videoUrl: z.string().optional().nullable(),
@@ -30,6 +30,39 @@ const productSchema = z.object({
   featured: z.boolean().optional(),
   availability: z.enum(["in_stock", "limited", "preorder"]).optional(),
 });
+
+function collectionId(value) {
+  const next = String(value || "").trim();
+  return next && next !== "__none__" ? next : null;
+}
+
+function productValues(id, body) {
+  return [
+    id,
+    body.slug,
+    body.sku,
+    JSON.stringify(fillLocalized(body.name)),
+    JSON.stringify(fillLocalized(body.description)),
+    body.categoryId,
+    collectionId(body.collectionId),
+    JSON.stringify((body.images || []).filter(Boolean)),
+    body.modelUrl || null,
+    body.videoUrl || null,
+    body.height ?? 0,
+    body.width ?? 0,
+    body.depth ?? 0,
+    body.length ?? 0,
+    body.material || "HD polymer",
+    body.finish || "Matte",
+    JSON.stringify(body.colors || []),
+    JSON.stringify(body.textures || []),
+    JSON.stringify(body.specs || []),
+    JSON.stringify(body.downloads || []),
+    body.price ?? 0,
+    body.featured ? 1 : 0,
+    body.availability || "in_stock",
+  ];
+}
 
 export const productsRouter = Router();
 
@@ -65,7 +98,10 @@ productsRouter.get("/", async (req, res) => {
 
 productsRouter.get("/:slug", async (req, res) => {
   try {
-    const rows = await query("SELECT * FROM products WHERE slug = ? OR id = ?", [req.params.slug, req.params.slug]);
+    const rows = await query("SELECT * FROM products WHERE slug = ? OR id = ?", [
+      req.params.slug,
+      req.params.slug,
+    ]);
     if (!rows[0]) return res.status(404).json({ message: "Product not found" });
     return res.json(mapProduct(rows[0]));
   } catch (error) {
@@ -76,7 +112,9 @@ productsRouter.get("/:slug", async (req, res) => {
 productsRouter.post("/", requireAuth, async (req, res) => {
   const parsed = productSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ message: "Please fill all required product fields" });
+    return res.status(400).json({
+      message: parsed.error.issues[0]?.message || "Please fill all required product fields",
+    });
   }
 
   const body = parsed.data;
@@ -91,17 +129,7 @@ productsRouter.post("/", requireAuth, async (req, res) => {
         (id, slug, sku, name, description, category_id, collection_id, images, model_url, video_url,
          height, width, depth, length, material, finish, colors, textures, specs, downloads, price, featured, availability)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        id, body.slug, body.sku, JSON.stringify(fillLocalized(body.name)),
-        JSON.stringify(fillLocalized(body.description)),
-        body.categoryId, body.collectionId, JSON.stringify((body.images || []).filter(Boolean)),
-        body.modelUrl || null, body.videoUrl || null,
-        body.height ?? 0, body.width ?? 0, body.depth ?? 0, body.length ?? 0,
-        body.material || "HD polymer", body.finish || "Matte",
-        JSON.stringify(body.colors || []), JSON.stringify(body.textures || []),
-        JSON.stringify(body.specs || []), JSON.stringify(body.downloads || []),
-        body.price ?? 0, body.featured ? 1 : 0, body.availability || "in_stock",
-      ],
+      productValues(id, body),
     );
     const rows = await query("SELECT * FROM products WHERE id = ?", [id]);
     return res.status(201).json(mapProduct(rows[0]));
@@ -113,7 +141,9 @@ productsRouter.post("/", requireAuth, async (req, res) => {
 productsRouter.put("/:id", requireAuth, async (req, res) => {
   const parsed = productSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ message: "Please fill all required product fields" });
+    return res.status(400).json({
+      message: parsed.error.issues[0]?.message || "Please fill all required product fields",
+    });
   }
 
   const body = parsed.data;
@@ -122,24 +152,14 @@ productsRouter.put("/:id", requireAuth, async (req, res) => {
   }
 
   try {
+    const values = productValues(req.params.id, body);
     await query(
       `UPDATE products SET
         slug=?, sku=?, name=?, description=?, category_id=?, collection_id=?, images=?,
         model_url=?, video_url=?, height=?, width=?, depth=?, length=?, material=?, finish=?,
         colors=?, textures=?, specs=?, downloads=?, price=?, featured=?, availability=?
        WHERE id=?`,
-      [
-        body.slug, body.sku, JSON.stringify(fillLocalized(body.name)),
-        JSON.stringify(fillLocalized(body.description)),
-        body.categoryId, body.collectionId, JSON.stringify((body.images || []).filter(Boolean)),
-        body.modelUrl || null, body.videoUrl || null,
-        body.height ?? 0, body.width ?? 0, body.depth ?? 0, body.length ?? 0,
-        body.material || "HD polymer", body.finish || "Matte",
-        JSON.stringify(body.colors || []), JSON.stringify(body.textures || []),
-        JSON.stringify(body.specs || []), JSON.stringify(body.downloads || []),
-        body.price ?? 0, body.featured ? 1 : 0, body.availability || "in_stock",
-        req.params.id,
-      ],
+      [...values.slice(1), req.params.id],
     );
     const rows = await query("SELECT * FROM products WHERE id = ?", [req.params.id]);
     if (!rows[0]) return res.status(404).json({ message: "Product not found" });
@@ -150,6 +170,13 @@ productsRouter.put("/:id", requireAuth, async (req, res) => {
 });
 
 productsRouter.delete("/:id", requireAuth, async (req, res) => {
-  await query("DELETE FROM products WHERE id = ?", [req.params.id]);
-  res.status(204).end();
+  try {
+    const result = await query("DELETE FROM products WHERE id = ?", [req.params.id]);
+    if (!result.affectedRows) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    return res.status(204).end();
+  } catch (error) {
+    return handleDbError(res, error);
+  }
 });

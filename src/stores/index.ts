@@ -29,12 +29,12 @@ interface ConfiguratorStore extends ConfiguratorState {
 }
 
 const initialConfigurator: ConfiguratorState = {
-  collectionId: "col-modern",
-  modelId: "p-md101",
-  colorId: "white",
+  collectionId: null,
+  modelId: null,
+  colorId: null,
   finishId: "matte",
   materialId: "hd-polymer",
-  textureId: "matte",
+  textureId: null,
   ledProfile: false,
   cornerAccessories: [],
   connectors: [],
@@ -66,7 +66,7 @@ interface VisualizerStore extends VisualizerState {
 const initialVisualizer: VisualizerState = {
   roomImage: null,
   presetId: "living-warm",
-  baseboardId: "p-md101",
+  baseboardId: null,
   panelId: null,
   moldingId: null,
   wallColor: "#F5F5F2",
@@ -94,7 +94,7 @@ export const useCalculatorStore = create<CalculatorStore>((set) => ({
     wallHeight: 2.7,
     doorCount: 2,
     windowCount: 3,
-    profileType: "p-md101",
+    profileType: "",
     cornerType: "standard",
     includeAdhesive: true,
     wastePercent: 8,

@@ -8,8 +8,9 @@ import { AdminShell } from "@/features/admin/admin-shell";
 import { PageHeader } from "@/features/admin/page-header";
 import { DataTable, StatusBadge } from "@/features/admin/data-table";
 import { useRouter } from "@/i18n/routing";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAdminDelete } from "@/features/admin/confirm-dialog";
-import { adminApi, catalogApi } from "@/lib/api";
+import { ApiError, adminApi } from "@/lib/api";
 import { getLocalized } from "@/data/catalog";
 import type { Product, ProductCategory } from "@/types";
 
@@ -17,6 +18,7 @@ export default function AdminProductsPage() {
   const t = useTranslations("admin");
   const locale = useLocale();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [items, setItems] = useState<Product[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -26,19 +28,20 @@ export default function AdminProductsPage() {
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
-    const [products, nextCategories] = await Promise.all([
-      catalogApi.products(),
-      catalogApi.categories(),
-    ]);
-    if (!products || !nextCategories) {
-      setError(t("apiUnavailable"));
-      setItems([]);
-      setCategories([]);
-    } else {
+    try {
+      const [products, nextCategories] = await Promise.all([
+        adminApi.products(),
+        adminApi.categories(),
+      ]);
       setItems(products);
       setCategories(nextCategories);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : t("apiUnavailable"));
+      setItems([]);
+      setCategories([]);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, [t]);
 
   useEffect(() => {
@@ -68,48 +71,51 @@ export default function AdminProductsPage() {
           </div>
         ) : (
           <>
-            {(deleteError || error) && (
+            {deleteError && (
               <div className="mb-4 rounded-2xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-                {deleteError || error}
+                {deleteError}
               </div>
             )}
-          <DataTable
-            data={items}
-            editLabel={t("edit")}
-            deleteLabel={t("delete")}
-            emptyLabel={t("noResults")}
-            onEdit={(row) => router.push(`/admin/products/${row.id}`)}
-            onDelete={async (row) => {
-              const ok = await deleteWithConfirm(() => adminApi.deleteProduct(row.id));
-              if (ok) setItems((prev) => prev.filter((item) => item.id !== row.id));
-            }}
-            columns={[
-              {
-                key: "name",
-                header: t("name"),
-                render: (row) => getLocalized(row.name, locale),
-              },
-              { key: "sku", header: "SKU" },
-              {
-                key: "categoryId",
-                header: t("categories"),
-                render: (row) => categoryName(row.categoryId),
-              },
-              {
-                key: "availability",
-                header: t("status"),
-                render: (row) => (
-                  <StatusBadge status={row.featured ? "published" : row.availability} />
-                ),
-              },
-              {
-                key: "price",
-                header: t("price"),
-                render: (row) => String(row.price),
-              },
-            ]}
-          />
-          {dialog}
+            <DataTable
+              data={items}
+              editLabel={t("edit")}
+              deleteLabel={t("delete")}
+              emptyLabel={t("noResults")}
+              onEdit={(row) => router.push(`/admin/products/${row.id}`)}
+              onDelete={async (row) => {
+                const ok = await deleteWithConfirm(() => adminApi.deleteProduct(row.id));
+                if (ok) {
+                  setItems((prev) => prev.filter((item) => item.id !== row.id));
+                  await queryClient.invalidateQueries({ queryKey: ["products"] });
+                }
+              }}
+              columns={[
+                {
+                  key: "name",
+                  header: t("name"),
+                  render: (row) => getLocalized(row.name, locale),
+                },
+                { key: "sku", header: "SKU" },
+                {
+                  key: "categoryId",
+                  header: t("categories"),
+                  render: (row) => categoryName(row.categoryId),
+                },
+                {
+                  key: "availability",
+                  header: t("status"),
+                  render: (row) => (
+                    <StatusBadge status={row.featured ? "published" : row.availability} />
+                  ),
+                },
+                {
+                  key: "price",
+                  header: t("price"),
+                  render: (row) => String(row.price),
+                },
+              ]}
+            />
+            {dialog}
           </>
         )}
       </AdminShell>

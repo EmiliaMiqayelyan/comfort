@@ -1,12 +1,12 @@
 import type { MetadataRoute } from "next";
 import { routing } from "@/i18n/routing";
 import {
-  products,
-  collections,
-  categories,
-  projects,
-  blogPosts,
-} from "@/data/catalog";
+  loadCategories,
+  loadCollections,
+  loadPosts,
+  loadProducts,
+  loadProjects,
+} from "@/lib/catalog-source";
 
 const BASE = "https://comfort.am";
 
@@ -30,7 +30,14 @@ const STATIC_ROUTES = [
   "/legal/cookies",
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const [products, categories, collections, projects, blogPosts] = await Promise.all([
+    loadProducts(),
+    loadCategories(),
+    loadCollections(),
+    loadProjects(),
+    loadPosts(),
+  ]);
   const entries: MetadataRoute.Sitemap = [];
 
   for (const locale of routing.locales) {

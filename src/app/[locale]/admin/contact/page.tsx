@@ -29,7 +29,7 @@ export default function AdminContactPage() {
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    adminApi.contactMessages().then((items) => setMessages(items ?? []));
+    adminApi.contactMessages().then((items) => setMessages(items)).catch(() => setMessages([]));
     catalogApi.contactSettings().then((next) => {
       if (next) setSettings(next);
     });
