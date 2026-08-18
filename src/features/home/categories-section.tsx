@@ -7,11 +7,13 @@ import { Reveal } from "@/components/molecules/reveal";
 import { CatalogCard } from "@/components/molecules/catalog-card";
 import { getLocalized } from "@/data/catalog";
 import { useCategories } from "@/hooks/use-catalog";
+import { parentCategories } from "@/lib/category-tree";
 
 export function CategoriesSection() {
   const t = useTranslations("categories");
   const locale = useLocale();
   const { data: categories = [] } = useCategories();
+  const parents = parentCategories(categories);
 
   return (
     <section className="bg-background py-20 md:py-28">
@@ -30,7 +32,7 @@ export function CategoriesSection() {
         </Reveal>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-          {categories.map((category, i) => (
+          {parents.map((category, i) => (
             <Reveal key={category.id} delay={i * 0.08}>
               <CatalogCard
                 href={`/products/${category.slug}`}

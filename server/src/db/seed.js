@@ -5,7 +5,7 @@ import { pool } from "./pool.js";
 dotenv.config();
 
 const L = (en, ru, am) => ({ en, ru, am });
-const productImage = "/products/plinth.jpg";
+const productImage = "/products/plinth.png";
 const productGallery = [
   productImage,
   "https://images.unsplash.com/photo-1600210491892-03d54c0aaf87?auto=format&fit=crop&w=1600&q=80",
@@ -38,11 +38,24 @@ async function seed() {
     "products",
     "collections",
     "categories",
+    "certificates",
+    "download_files",
+    "site_settings",
     "users",
   ]) {
-    await pool.query(`TRUNCATE TABLE ${table}`);
+    try {
+      await pool.query(`TRUNCATE TABLE ${table}`);
+    } catch {
+      /* table may not exist yet */
+    }
   }
   await pool.query("SET FOREIGN_KEY_CHECKS = 1");
+
+  try {
+    await pool.query("ALTER TABLE categories ADD COLUMN parent_id CHAR(36) NULL");
+  } catch {
+    /* already exists */
+  }
 
   await pool.query(
     `INSERT INTO users (id, name, email, password_hash, role) VALUES
@@ -53,17 +66,18 @@ async function seed() {
   );
 
   const categories = [
-    ["cat-baseboards", "baseboards", L("Baseboards", "Плинтусы", "Սալիկներ"), L("Precision profiles that frame floors with quiet elegance.", "Точные профили, которые элегантно обрамляют пол.", "Ճշգրիտ պրոֆիլներ, որոնք նրբորեն շրջանակում են հատակը։")],
-    ["cat-panels", "wall-panels", L("Wall panels", "Стеновые панели", "Պատի վահանակներ"), L("Sculptural 3D surfaces that transform architecture.", "Скульптурные 3D поверхности для архитектуры.", "Քանդակային 3D մակերեսներ ճարտարապետության համար։")],
-    ["cat-moldings", "moldings", L("Moldings", "Молдинги", "Մոլդինգներ"), L("Refined lines for classic and contemporary interiors.", "Изящные линии для классики и современности.", "Նրբագեղ գծեր դասական և ժամանակակից ինտերիերի համար։")],
-    ["cat-profiles", "profiles", L("Profiles", "Профили", "Պրոֆիլներ"), L("Technical profiles with LED and finishing systems.", "Технические профили с LED и финишными системами.", "Տեխնիկական պրոֆիլներ LED և հարդարման համակարգերով։")],
-    ["cat-accessories", "accessories", L("Accessories", "Аксессуары", "Աքսեսուարներ"), L("Corners, connectors and installation essentials.", "Углы, соединители и монтажные решения.", "Անկյուններ, միացումներ և մոնտաժման լուծումներ։")],
+    ["cat-baseboards", "baseboards", L("Baseboards", "Плинтусы", "Սալիկներ"), L("Precision profiles that frame floors with quiet elegance.", "Точные профили, которые элегантно обрамляют пол.", "Ճշգրիտ պրոֆիլներ, որոնք նրբորեն շրջանակում են հատակը։"), null],
+    ["cat-panels", "wall-panels", L("Pannels", "Панели", "Վահանակներ"), L("Sculptural 3D surfaces that transform architecture.", "Скульптурные 3D поверхности для архитектуры.", "Քանդակային 3D մակերեսներ ճարտարապետության համար։"), null],
+    ["cat-3d-prof", "3d-prof", L("3D Prof", "3D Prof", "3D Prof"), L("3D professional wall panel profiles.", "Профессиональные 3D панели.", "3D պրոֆեսիոնալ պատի վահանակներ։"), "cat-panels"],
+    ["cat-moldings", "moldings", L("Moldings", "Молдинги", "Մոլդինգներ"), L("Refined lines for classic and contemporary interiors.", "Изящные линии для классики и современности.", "Նրբագեղ գծեր դասական և ժամանակակից ինտերիերի համար։"), null],
+    ["cat-profiles", "profiles", L("Profiles", "Профили", "Պրոֆիլներ"), L("Technical profiles with LED and finishing systems.", "Технические профили с LED и финишными системами.", "Տեխնիկական պրոֆիլներ LED և հարդարման համակարգերով։"), null],
+    ["cat-accessories", "accessories", L("Accessories", "Аксессуары", "Աքսեսուարներ"), L("Corners, connectors and installation essentials.", "Углы, соединители и монтажные решения.", "Անկյուններ, միացումներ և մոնտաժման լուծումներ։"), null],
   ];
 
-  for (const [id, slug, name, description] of categories) {
+  for (const [id, slug, name, description, parentId] of categories) {
     await pool.query(
-      "INSERT INTO categories (id, slug, name, description, image) VALUES (?, ?, ?, ?, ?)",
-      [id, slug, JSON.stringify(name), JSON.stringify(description), productImage],
+      "INSERT INTO categories (id, slug, name, description, image, parent_id) VALUES (?, ?, ?, ?, ?, ?)",
+      [id, slug, JSON.stringify(name), JSON.stringify(description), productImage, parentId],
     );
   }
 
@@ -89,7 +103,7 @@ async function seed() {
     ["p-modern", "plinth-modern", "MD-070", L("Plinth Modern", "Плинтус Modern", "Սալիկ Modern"), L("A simple rectangular block profile for contemporary interiors.", "Простой прямоугольный профиль.", "Պարզ ուղղանկյուն պրոֆիլ։"), "cat-baseboards", "col-modern", 70, 14, 14, 2400, 4100, 1],
     ["p-elegant", "plinth-elegant", "EL-090", L("Plinth Elegant", "Плинтус Elegant", "Սալիկ Elegant"), L("A profile with a smooth convex top curve.", "Профиль с мягкой выпуклой линией.", "Պրոֆիլ փափուկ գծով։"), "cat-baseboards", "col-classic", 90, 16, 16, 2400, 4500, 0],
     ["p-flat", "plinth-flat", "FL-060", L("Plinth Flat", "Плинтус Flat", "Սալիկ Flat"), L("Ultra-slim rectangular profile for minimal interiors.", "Ультратонкий прямоугольный профиль.", "Գերաբարակ ուղղանկյուն պրոֆիլ։"), "cat-baseboards", "col-minimal", 60, 12, 12, 2400, 3900, 0],
-    ["p-panel-3d", "panel-fluted", "PN-3D-12", L("Fluted 3D Panel", "Фрезерованная 3D панель", "Փորագրված 3D վահանակ"), L("Vertical rhythm for feature walls.", "Вертикальный ритм для акцентов.", "Ուղղահայաց ռիթմ։"), "cat-panels", "col-modern", 2800, 600, 18, 600, 18900, 1],
+    ["p-panel-3d", "panel-fluted", "PN-3D-12", L("Fluted 3D Panel", "Фрезерованная 3D панель", "Փորագրված 3D վահանակ"), L("Vertical rhythm for feature walls.", "Вертикальный ритм для акцентов.", "Ուղղահայաց ռիթմ։"), "cat-3d-prof", "col-modern", 2800, 600, 18, 600, 18900, 1],
     ["p-molding-elegant", "molding-elegant", "ML-ELG", L("Molding Elegant", "Молдинг Elegant", "Մոլդինգ Elegant"), L("Soft convex framing for walls and ceilings.", "Мягкое обрамление стен.", "Փափուկ շրջանակ։"), "cat-moldings", "col-classic", 45, 20, 20, 2400, 3200, 0],
     ["p-molding-classic", "molding-classic", "ML-CL", L("Molding Classic", "Молдинг Classic", "Մոլդինգ Classic"), L("Elaborate decorative molding with multiple ridges.", "Декоративный молдинг.", "Դեկորատիվ մոլդինգ։"), "cat-moldings", "col-classic", 50, 22, 22, 2400, 3400, 0],
     ["p-molding-modern", "molding-modern", "ML-MD", L("Molding Modern", "Молдинг Modern", "Մոլդինգ Modern"), L("Stepped geometric profile with sharp lines.", "Геометрический профиль.", "Երկրաչափական պրոֆիլ։"), "cat-moldings", "col-modern", 40, 18, 18, 2400, 3100, 0],
@@ -157,7 +171,53 @@ async function seed() {
 
   await pool.query(
     `INSERT INTO media_assets (id, name, type, url, folder, size) VALUES
-     ('m1', 'plinth.jpg', 'image', '/products/plinth.jpg', 'products', 240000)`,
+     ('m1', 'plinth.png', 'image', '/products/plinth.png', 'products', 240000)`,
+  );
+
+  await pool.query(
+    `INSERT INTO certificates (id, title, issuer, year, file_url, image) VALUES
+     ('cert-iso', ?, 'ISO', 2015, '/products/plinth.png', '/products/plinth.png'),
+     ('cert-ce', ?, 'CE', 2022, '/products/plinth.png', '/products/plinth.png')`,
+    [
+      JSON.stringify(L("ISO 9001:2015", "ISO 9001:2015", "ISO 9001:2015")),
+      JSON.stringify(L("CE Marking", "CE Marking", "CE Marking")),
+    ],
+  );
+
+  await pool.query(
+    `INSERT INTO download_files (id, filename, title, category, url, file_size, downloadable) VALUES
+     ('dl-catalog', 'comfort-catalog.pdf', ?, 'catalogs', '/downloads/md101.pdf', '1.2 MB', 1),
+     ('dl-template', 'order-template.docx', ?, 'templates', '/downloads/md101.pdf', '240 KB', 1)`,
+    [
+      JSON.stringify(L("Comfort catalog", "Каталог Comfort", "Comfort կատալոգ")),
+      JSON.stringify(L("Order template", "Шаблон заказа", "Պատվերի ձևանմուշ")),
+    ],
+  );
+
+  await pool.query(
+    `INSERT INTO site_settings (setting_key, setting_value) VALUES ('contact', ?)`,
+    [
+      JSON.stringify({
+        phones: ["+374 00 000000"],
+        emails: ["info@comfort.am"],
+        address: L("Yerevan, Armenia", "Ереван, Армения", "Երևան, Հայաստան"),
+        hours: L("Mon–Sat 10:00–19:00", "Пн–Сб 10:00–19:00", "Երկ–Շբ 10:00–19:00"),
+        socials: [
+          { id: "whatsapp", label: "WhatsApp", href: "https://wa.me/37400000000" },
+          { id: "telegram", label: "Telegram", href: "https://t.me/comfort" },
+          { id: "instagram", label: "Instagram", href: "https://instagram.com" },
+        ],
+        showrooms: [
+          {
+            id: "yerevan",
+            name: "Yerevan Showroom",
+            address: "15 Northern Ave, Yerevan, Armenia",
+            hours: "Mon–Sat 10:00–19:00",
+            phone: "+374 00 000000",
+          },
+        ],
+      }),
+    ],
   );
 
   console.log("Seed complete. Admin: admin@comfort.am / admin");

@@ -1,36 +1,58 @@
 "use client";
 
-import { useTranslations } from "next-intl";
-import { Share2, Globe, ExternalLink } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { ArrowUpRight } from "lucide-react";
 import { Link } from "@/i18n/routing";
 import { Separator } from "@/components/atoms/separator";
+import { catalogApi } from "@/lib/api";
+import { getLocalized } from "@/data/catalog";
+import type { ContactSettings } from "@/types";
 
 export function SiteFooter() {
   const t = useTranslations("footer");
   const nav = useTranslations("nav");
+  const locale = useLocale();
+  const [settings, setSettings] = useState<ContactSettings | null>(null);
+
+  useEffect(() => {
+    catalogApi.contactSettings().then(setSettings);
+  }, []);
 
   return (
     <footer className="border-t border-border bg-comfort-ink text-comfort-sand">
       <div className="container-wide grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-12">
         <div className="lg:col-span-4">
           <div className="mb-5 flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-accent/40 text-accent">
-              C
+            <span className="flex h-12 items-center rounded-xl bg-[#e9e8e3] px-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/brand/comfort-logo.svg" alt="Comfort" className="h-9 w-auto" />
             </span>
-            <span className="display tracking-[0.28em] uppercase">Comfort</span>
           </div>
           <p className="max-w-sm text-sm leading-relaxed text-comfort-sand/65">
             {t("mission")}
           </p>
-          <div className="mt-6 flex gap-3">
-            {[Share2, Globe, ExternalLink].map((Icon, i) => (
+          {settings && (
+            <div className="mt-6 space-y-2 text-sm text-comfort-sand/70">
+              {settings.phones.filter(Boolean).map((phone) => (
+                <p key={phone}>{phone}</p>
+              ))}
+              {settings.emails.filter(Boolean).map((email) => (
+                <p key={email}>{email}</p>
+              ))}
+              <p>{getLocalized(settings.address, locale)}</p>
+            </div>
+          )}
+          <div className="mt-6 flex flex-wrap gap-3">
+            {(settings?.socials ?? []).filter((item) => item.href).map((item) => (
               <a
-                key={i}
-                href="#"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-comfort-sand/70 transition hover:border-accent hover:text-accent"
-                aria-label="Social"
+                key={item.id}
+                href={item.href}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-comfort-sand/80 transition hover:border-accent hover:text-accent"
               >
-                <Icon className="h-4 w-4" />
+                {item.label}
               </a>
             ))}
           </div>
@@ -50,7 +72,15 @@ export function SiteFooter() {
           <FooterCol title={t("support")}>
             <Link href="/downloads">{nav("downloads")}</Link>
             <Link href="/contact">{nav("contact")}</Link>
-            <Link href="/ar">AR</Link>
+            <a
+              href="https://www.comfort.am"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1"
+            >
+              {nav("oldSite")}
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </a>
           </FooterCol>
           <FooterCol title={t("legal")}>
             <Link href="/legal/privacy">{t("privacy")}</Link>

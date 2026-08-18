@@ -5,6 +5,9 @@ import {
   FolderTree,
   Layers,
   Building2,
+  Award,
+  Download,
+  Mail,
 } from "lucide-react";
 import type { Role } from "@/types";
 
@@ -46,6 +49,24 @@ export const adminNavItems: AdminNavItem[] = [
     labelKey: "projects",
     icon: Building2,
     roles: ["admin", "manager", "editor"],
+  },
+  {
+    href: "/admin/certificates",
+    labelKey: "certificates",
+    icon: Award,
+    roles: ["admin", "manager", "editor"],
+  },
+  {
+    href: "/admin/downloads",
+    labelKey: "downloads",
+    icon: Download,
+    roles: ["admin", "manager", "editor"],
+  },
+  {
+    href: "/admin/contact",
+    labelKey: "contactInbox",
+    icon: Mail,
+    roles: ["admin", "manager"],
   },
 ];
 

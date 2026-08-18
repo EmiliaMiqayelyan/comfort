@@ -17,6 +17,7 @@ import {
   slugify,
 } from "@/features/admin/form-ui";
 import { AdminSelect } from "@/features/admin/admin-select";
+import { FileUploadField } from "@/features/admin/file-upload";
 import { ApiError, adminApi } from "@/lib/api";
 import type { Collection, LocalizedString } from "@/types";
 
@@ -95,11 +96,7 @@ export function CollectionForm({ collection }: { collection?: Collection }) {
                 />
               </Field>
               <Field label={t("images")}>
-                <Input
-                  value={image}
-                  onChange={(e) => setImage(e.target.value)}
-                  className={adminFieldClass}
-                />
+                <FileUploadField value={image} onChange={setImage} accept="image/*" label={t("upload")} />
               </Field>
             </div>
           </Section>

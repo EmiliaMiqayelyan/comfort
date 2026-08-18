@@ -18,7 +18,9 @@ import {
   emptyLocalized,
   slugify,
 } from "@/features/admin/form-ui";
+import { FileUploadField } from "@/features/admin/file-upload";
 import { AdminSelect } from "@/features/admin/admin-select";
+import { CategoryAttachFields } from "@/features/admin/category-attach";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiError, adminApi, catalogApi } from "@/lib/api";
 import { getLocalized } from "@/data/catalog";
@@ -233,18 +235,12 @@ export function ProductForm({ product }: { product?: Product }) {
           </Section>
 
           <Section title={t("classification")}>
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field label={t("categories")}>
-                <AdminSelect
-                  value={form.categoryId}
-                  onValueChange={(value) => update("categoryId", value)}
-                  placeholder={t("selectCategory")}
-                  options={categories.map((category) => ({
-                    value: category.id,
-                    label: getLocalized(category.name, locale),
-                  }))}
-                />
-              </Field>
+            <div className="grid gap-6 md:grid-cols-2">
+              <CategoryAttachFields
+                categories={categories}
+                value={form.categoryId}
+                onChange={(categoryId) => update("categoryId", categoryId)}
+              />
               <Field label={t("collections")}>
                 <AdminSelect
                   value={form.collectionId}
@@ -320,21 +316,23 @@ export function ProductForm({ product }: { product?: Product }) {
             <div className="space-y-3">
               {form.images.map((url, index) => (
                 <div key={index} className="flex gap-3">
-                  <Input
-                    value={url}
-                    onChange={(e) => {
-                      const images = [...form.images];
-                      images[index] = e.target.value;
-                      update("images", images);
-                    }}
-                    placeholder="/products/plinth.png"
-                    className={adminFieldClass}
-                  />
+                  <div className="min-w-0 flex-1">
+                    <FileUploadField
+                      value={url}
+                      accept="image/*"
+                      label={t("upload")}
+                      onChange={(next) => {
+                        const images = [...form.images];
+                        images[index] = next;
+                        update("images", images);
+                      }}
+                    />
+                  </div>
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon-sm"
-                    className="text-zinc-400 hover:text-red-400"
+                    className="mt-1 text-zinc-400 hover:text-red-400"
                     onClick={() =>
                       update(
                         "images",

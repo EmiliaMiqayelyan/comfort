@@ -3,7 +3,9 @@ import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Reveal } from "@/components/molecules/reveal";
 import { Badge } from "@/components/atoms/badge";
-import { siteImages } from "@/data/catalog";
+import { catalogApi } from "@/lib/api";
+import { getLocalized, siteImages } from "@/data/catalog";
+import { FileText } from "lucide-react";
 
 const TIMELINE = [
   { year: "2010", key: "founded" },
@@ -13,13 +15,6 @@ const TIMELINE = [
 ] as const;
 
 const VALUES = ["production", "materials", "technology", "design"] as const;
-
-const CERTIFICATES = [
-  "ISO 9001:2015",
-  "CE Marking",
-  "Eco Material Certificate",
-  "Fire Resistance Class B1",
-];
 
 export async function generateMetadata({
   params,
@@ -56,6 +51,7 @@ export default async function AboutPage({
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "about" });
   const ta = await getTranslations({ locale, namespace: "advantages" });
+  const certificates = await catalogApi.certificates();
 
   return (
     <>
@@ -170,15 +166,38 @@ export default async function AboutPage({
             </h2>
           </Reveal>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {CERTIFICATES.map((cert, i) => (
-              <Reveal key={cert} delay={i * 0.06}>
-                <div className="rounded-3xl border border-border bg-card px-6 py-8 text-center shadow-soft">
+            {(certificates ?? []).length === 0 ? (
+              <p className="text-muted-foreground">{t("certificatesEmpty")}</p>
+            ) : (
+              (certificates ?? []).map((cert, i) => (
+              <Reveal key={cert.id} delay={i * 0.06}>
+                <a
+                  href={cert.fileUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block rounded-3xl border border-border bg-card px-6 py-8 text-center shadow-soft transition hover:border-accent/40"
+                >
+                  {cert.image ? (
+                    <span className="relative mx-auto mb-4 block h-20 w-20 overflow-hidden rounded-xl bg-muted">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={cert.image} alt="" className="h-full w-full object-cover" />
+                    </span>
+                  ) : (
+                    <FileText className="mx-auto mb-4 h-6 w-6 text-accent" />
+                  )}
                   <p className="display text-sm text-foreground md:text-base">
-                    {cert}
+                    {getLocalized(cert.title, locale)}
                   </p>
-                </div>
+                  {cert.issuer && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {cert.issuer}
+                      {cert.year ? ` · ${cert.year}` : ""}
+                    </p>
+                  )}
+                </a>
               </Reveal>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </section>

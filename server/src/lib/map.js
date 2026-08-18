@@ -15,7 +15,31 @@ export function mapCategory(row) {
     name: parseJson(row.name, { en: "", ru: "", am: "" }),
     description: parseJson(row.description, { en: "", ru: "", am: "" }),
     image: row.image,
+    parentId: row.parent_id || null,
     productCount: Number(row.product_count ?? 0),
+  };
+}
+
+export function mapCertificate(row) {
+  return {
+    id: row.id,
+    title: parseJson(row.title, { en: "", ru: "", am: "" }),
+    issuer: row.issuer || "",
+    year: row.year ? Number(row.year) : undefined,
+    fileUrl: row.file_url,
+    image: row.image || undefined,
+  };
+}
+
+export function mapDownloadFile(row) {
+  return {
+    id: row.id,
+    filename: row.filename,
+    title: parseJson(row.title, { en: "", ru: "", am: "" }),
+    category: row.category,
+    url: row.url,
+    size: row.file_size || undefined,
+    downloadable: Boolean(row.downloadable),
   };
 }
 

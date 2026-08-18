@@ -19,7 +19,8 @@
     "configurator": "Կոնֆիգուրատոր",
     "search": "Որոնում",
     "contactCta": "Կապ մեզ հետ",
-    "requestCatalog": "Հարցնել կատալոգ"
+    "requestCatalog": "Հարցնել կատալոգ",
+    "oldSite": "Հին կայք"
   },
   "hero": {
     "title": "Սալիկներ. 3D վահանակներ. Մոլդինգներ.",
@@ -93,7 +94,8 @@
     "technology": "Տեխնոլոգիա",
     "quality": "Որակ",
     "awards": "Մրցանակներ",
-    "certificates": "Սերտիֆիկատներ"
+    "certificates": "Սերտիֆիկատներ",
+    "certificatesEmpty": "Սերտիֆիկատները կհայտնվեն այստեղ, երբ դրանք ավելացվեն ադմին վահանակից։"
   },
   "projects": {
     "title": "Նախագծեր",
@@ -225,7 +227,12 @@
     "dwg": "DWG",
     "textures": "Տեքստուրաներ",
     "catalogs": "Կատալոգներ",
-    "guides": "Մոնտաժման ուղեցույցներ"
+    "guides": "Մոնտաժման ուղեցույցներ",
+    "templates": "Ձևանմուշներ",
+    "collections": "Հավաքածուներ",
+    "other": "Այլ",
+    "all": "Բոլորը",
+    "empty": "Այս կատեգորիայում դեռ ֆայլեր չկան։"
   },
   "blog": {
     "title": "Ամսագիր",
@@ -385,7 +392,32 @@
     "value": "Արժեք",
     "unit": "Միավոր",
     "apiUnavailable": "Չհաջողվեց բեռնել տվյալները API-ից։",
-    "apiUnavailableHint": "Գործարկեք MySQL (XAMPP), ապա՝ npm run dev:api"
+    "apiUnavailableHint": "Գործարկեք MySQL (XAMPP), ապա՝ npm run dev:api",
+    "parentCategory": "Մայր կատեգորիա",
+    "topLevelCategory": "Հիմնական կատեգորիա",
+    "selectSubcategory": "Ենթակատեգորիա",
+    "thisCategory": "Օգտագործել մայր կատեգորիան",
+    "categoryHint": "Ընտրեք մայր կատեգորիա, ապա ենթակատեգորիա, օրինակ՝ Pannels → 3D Prof։",
+    "contactInbox": "Կապ",
+    "contactInboxDesc": "Հայտեր և կոնտակտային տվյալներ",
+    "contactRequests": "Հայտեր",
+    "contactDetails": "Կոնտակտային տվյալներ",
+    "phones": "Հեռախոսներ",
+    "address": "Հասցե",
+    "hours": "Աշխատանքային ժամեր",
+    "socials": "Սոցիալական ցանցեր",
+    "socialsHint": "Յուրաքանչյուր տող՝ Անուն|հղում",
+    "showrooms": "Սրահներ",
+    "showroomsHint": "Յուրաքանչյուր տող՝ Անուն | Հասցե | Ժամեր | Հեռախոս",
+    "createCertificate": "Ավելացնել սերտիֆիկատ",
+    "editCertificate": "Խմբագրել սերտիֆիկատը",
+    "createDownload": "Ավելացնել ֆայլ",
+    "editDownload": "Խմբագրել ֆայլը",
+    "issuer": "Տրամադրող",
+    "year": "Տարի",
+    "certificateFile": "Սերտիֆիկատի ֆայլ",
+    "filename": "Ֆայլի անուն",
+    "downloadable": "Հասանելի է ներբեռնման"
   },
   "common": {
     "loading": "Բեռնում",

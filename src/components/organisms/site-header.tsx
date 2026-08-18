@@ -1,5 +1,6 @@
 "use client";
 
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import { Menu, Moon, Search, Sun, X, ArrowUpRight } from "lucide-react";
@@ -66,16 +67,13 @@ export function SiteHeader() {
     >
       <div className="container-wide flex items-center justify-between gap-4">
         <Link href="/" className="group flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-accent/50 bg-primary text-accent transition group-hover:scale-105">
-            <span className="display text-lg">C</span>
-          </span>
-          <span
-            className={cn(
-              "display text-sm tracking-[0.28em] uppercase transition-colors",
-              solid ? "text-foreground" : "text-white",
-            )}
-          >
-            Comfort
+          <span className="flex h-11 items-center rounded-xl bg-[#e9e8e3] px-2 transition group-hover:scale-[1.02]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/brand/comfort-logo.svg"
+              alt="Comfort"
+              className="h-8 w-auto object-contain"
+            />
           </span>
         </Link>
 
@@ -93,6 +91,18 @@ export function SiteHeader() {
               {t(key)}
             </Link>
           ))}
+          <a
+            href="https://www.comfort.am"
+            target="_blank"
+            rel="noreferrer"
+            className={cn(
+              "inline-flex items-center gap-1 text-[13px] tracking-wide transition-colors hover:text-accent",
+              solid ? "text-foreground/80" : "text-white/85",
+            )}
+          >
+            {t("oldSite")}
+            <ArrowUpRight className="h-3.5 w-3.5" />
+          </a>
         </nav>
 
         <div className="flex items-center gap-2">
@@ -191,6 +201,15 @@ export function SiteHeader() {
                   {t(item.key)}
                 </Link>
               ))}
+              <a
+                href="https://www.comfort.am"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-base text-muted-foreground"
+              >
+                {t("oldSite")}
+                <ArrowUpRight className="h-4 w-4" />
+              </a>
               <div className="flex gap-2 pt-2">
                 {locales.map((l) => (
                   <Link

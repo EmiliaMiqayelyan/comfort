@@ -2,38 +2,62 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: "Comfort Bebas";
+  src: url("/fonts/bebas-neue-arm.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Mardoto";
+  src: url("/fonts/mardoto-regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Montserratarm";
+  src: url("/fonts/montserratarm-light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --background: #f5f5f2;
-  --foreground: #111827;
-  --card: #ffffff;
-  --card-foreground: #111827;
-  --popover: #ffffff;
-  --popover-foreground: #111827;
-  --primary: #111827;
-  --primary-foreground: #f5f5f2;
-  --secondary: #f5f5f2;
-  --secondary-foreground: #111827;
-  --muted: #ebebe6;
-  --muted-foreground: #6b7280;
-  --accent: #c8a97e;
-  --accent-foreground: #111827;
-  --destructive: #b91c1c;
+  --background: #e9e8e3;
+  --foreground: #181819;
+  --card: #f7f7f4;
+  --card-foreground: #181819;
+  --popover: #f7f7f4;
+  --popover-foreground: #181819;
+  --primary: #181819;
+  --primary-foreground: #e9e8e3;
+  --secondary: #e0dfd9;
+  --secondary-foreground: #181819;
+  --muted: #e0dfd9;
+  --muted-foreground: #5d5d5d;
+  --accent: #ed1d24;
+  --accent-foreground: #ffffff;
+  --destructive: #a60e0e;
   --destructive-foreground: #ffffff;
-  --border: #e5e5e0;
-  --input: #e5e5e0;
-  --ring: #c8a97e;
+  --border: #d8d6cf;
+  --input: #d8d6cf;
+  --ring: #ed1d24;
   --radius: 1rem;
-  --glass: rgba(255, 255, 255, 0.72);
-  --glass-border: rgba(255, 255, 255, 0.35);
-  --shadow-soft: 0 20px 60px rgba(17, 24, 39, 0.08);
+  --glass: rgba(233, 232, 227, 0.82);
+  --glass-border: rgba(24, 24, 25, 0.08);
+  --shadow-soft: 0 20px 60px rgba(24, 24, 25, 0.08);
   --hero-overlay: linear-gradient(
     120deg,
-    rgba(17, 24, 39, 0.72) 0%,
-    rgba(17, 24, 39, 0.28) 55%,
-    rgba(17, 24, 39, 0.12) 100%
+    rgba(24, 24, 25, 0.72) 0%,
+    rgba(24, 24, 25, 0.28) 55%,
+    rgba(24, 24, 25, 0.12) 100%
   );
-  --font-comfort-sans: "Manrope", system-ui, sans-serif;
-  --font-comfort-display: "Syne", "Manrope", system-ui, sans-serif;
+  --font-comfort-sans: "Mardoto", "Montserratarm", "Noto Sans Armenian", system-ui, sans-serif;
+  --font-comfort-display: "Comfort Bebas", "Mardoto", sans-serif;
 }
 
 .dark {
@@ -49,13 +73,13 @@
   --secondary-foreground: #f5f5f2;
   --muted: #1a2230;
   --muted-foreground: #9ca3af;
-  --accent: #c8a97e;
-  --accent-foreground: #111827;
+  --accent: #ed1d24;
+  --accent-foreground: #ffffff;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
   --border: #243044;
   --input: #243044;
-  --ring: #c8a97e;
+  --ring: #ed1d24;
   --glass: rgba(17, 24, 39, 0.7);
   --glass-border: rgba(255, 255, 255, 0.08);
   --shadow-soft: 0 20px 60px rgba(0, 0, 0, 0.35);
@@ -89,7 +113,7 @@
   --color-ring: var(--ring);
   --color-comfort-ink: #111827;
   --color-comfort-sand: #f5f5f2;
-  --color-comfort-gold: #c8a97e;
+  --color-comfort-gold: #ed1d24;
   --font-sans: var(--font-comfort-sans);
   --font-display: var(--font-comfort-display);
   --radius-sm: calc(var(--radius) - 8px);
@@ -137,7 +161,7 @@ body {
 
 .display {
   font-family: var(--font-comfort-display), var(--font-comfort-sans), sans-serif;
-  letter-spacing: -0.03em;
+  letter-spacing: 0.04em;
 }
 
 .container-comfort {
@@ -230,7 +254,7 @@ html.admin-scroll-lock body {
   overflow-x: hidden;
   overscroll-behavior: contain;
   scrollbar-width: thin;
-  scrollbar-color: rgba(200, 169, 126, 0.35) transparent;
+  scrollbar-color: rgba(237, 29, 36, 0.35) transparent;
 }
 
 .admin-pane-scroll::-webkit-scrollbar {
@@ -242,10 +266,10 @@ html.admin-scroll-lock body {
 }
 
 .admin-pane-scroll::-webkit-scrollbar-thumb {
-  background: rgba(200, 169, 126, 0.35);
+  background: rgba(237, 29, 36, 0.35);
   border-radius: 999px;
 }
 
 .admin-pane-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(200, 169, 126, 0.55);
+  background: rgba(237, 29, 36, 0.55);
 }

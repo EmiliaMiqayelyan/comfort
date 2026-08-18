@@ -13,6 +13,9 @@ import {
   mediaRouter,
   contactRouter,
   calculatorRouter,
+  certificatesRouter,
+  downloadsRouter,
+  settingsRouter,
 } from "./routes/content.js";
 import { pool } from "./db/pool.js";
 
@@ -50,6 +53,9 @@ app.use("/api/users", usersRouter);
 app.use("/api/media", mediaRouter);
 app.use("/api/contact", contactRouter);
 app.use("/api/calculator", calculatorRouter);
+app.use("/api/certificates", certificatesRouter);
+app.use("/api/downloads", downloadsRouter);
+app.use("/api/settings", settingsRouter);
 
 app.use((err, _req, res, _next) => {
   console.error(err);

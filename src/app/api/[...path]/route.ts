@@ -16,14 +16,16 @@ async function proxy(
   if (auth) headers.set("authorization", auth);
   if (contentType) headers.set("content-type", contentType);
 
-  let body: string | undefined;
+  let body: BodyInit | undefined;
   const contentLength = request.headers.get("content-length");
+  const isMultipart = contentType?.includes("multipart/form-data");
   const hasBody =
     request.method !== "GET" &&
     request.method !== "HEAD" &&
-    contentLength != null &&
-    Number(contentLength) > 0;
-  if (hasBody) body = await request.text();
+    ((contentLength != null && Number(contentLength) > 0) || isMultipart);
+  if (hasBody) {
+    body = isMultipart ? await request.arrayBuffer() : await request.text();
+  }
 
   try {
     const response = await fetch(target, {
@@ -44,9 +46,13 @@ async function proxy(
         "content-type": response.headers.get("content-type") || "application/json",
       },
     });
-  } catch (err) {
+  } catch (err: unknown) {
     const message =
-      err instanceof Error ? err.message : String((err as any)?.message ?? err);
+      err instanceof Error
+        ? err.message
+        : typeof err === "object" && err !== null && "message" in err
+          ? String((err as { message?: unknown }).message ?? err)
+          : String(err);
     return NextResponse.json(
       {
         message:

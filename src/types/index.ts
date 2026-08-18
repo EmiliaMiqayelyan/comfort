@@ -19,7 +19,70 @@ export interface ProductCategory {
   name: LocalizedString;
   description: LocalizedString;
   image: string;
+  parentId?: string | null;
   productCount: number;
+}
+
+export interface Certificate {
+  id: string;
+  title: LocalizedString;
+  issuer?: string;
+  year?: number;
+  fileUrl: string;
+  image?: string;
+}
+
+export type DownloadCategory =
+  | "catalogs"
+  | "templates"
+  | "collections"
+  | "pdf"
+  | "cad"
+  | "bim"
+  | "guides"
+  | "other";
+
+export interface DownloadFile {
+  id: string;
+  filename: string;
+  title: LocalizedString;
+  category: DownloadCategory;
+  url: string;
+  size?: string;
+  downloadable: boolean;
+}
+
+export interface ContactShowroom {
+  id: string;
+  name: string;
+  address: string;
+  hours: string;
+  phone?: string;
+}
+
+export interface ContactSocial {
+  id: string;
+  label: string;
+  href: string;
+}
+
+export interface ContactSettings {
+  phones: string[];
+  emails: string[];
+  address: LocalizedString;
+  hours: LocalizedString;
+  socials: ContactSocial[];
+  showrooms: ContactShowroom[];
+}
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  message: string;
+  created_at?: string;
 }
 
 export interface Collection {

@@ -7,14 +7,18 @@ import {
 } from "@/data/catalog";
 import type {
   BlogPost,
+  Certificate,
   Collection,
+  ContactMessage,
+  ContactSettings,
+  DownloadFile,
   Product,
   ProductCategory,
   Project,
   Role,
 } from "@/types";
 
-const STORE_KEY = "comfort-mock-store";
+const STORE_KEY = "comfort-mock-store-v2";
 const MODE_KEY = "comfort-mock-mode";
 
 type MockUser = {
@@ -31,31 +35,94 @@ type Store = {
   collections: Collection[];
   projects: Project[];
   blogPosts: BlogPost[];
+  certificates: Certificate[];
+  downloads: DownloadFile[];
+  contactMessages: ContactMessage[];
+  contactSettings: ContactSettings;
 };
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
-function loadStore(): Store {
-  if (typeof window !== "undefined") {
-    try {
-      const raw = sessionStorage.getItem(STORE_KEY);
-      if (raw) return JSON.parse(raw) as Store;
-    } catch {
-      /* ignore */
-    }
-  }
+function defaultStore(): Store {
   return {
     products: clone(seedProducts),
     categories: clone(seedCategories),
     collections: clone(seedCollections),
     projects: clone(seedProjects),
     blogPosts: clone(seedBlogPosts),
+    certificates: [
+      {
+        id: "cert-iso",
+        title: { en: "ISO 9001:2015", ru: "ISO 9001:2015", am: "ISO 9001:2015" },
+        issuer: "ISO",
+        year: 2015,
+        fileUrl: "/products/plinth.png",
+        image: "/products/plinth.png",
+      },
+    ],
+    downloads: [
+      {
+        id: "dl-catalog",
+        filename: "comfort-catalog.pdf",
+        title: { en: "Comfort catalog", ru: "Каталог Comfort", am: "Comfort կատալոգ" },
+        category: "catalogs",
+        url: "/downloads/md101.pdf",
+        size: "1.2 MB",
+        downloadable: true,
+      },
+    ],
+    contactMessages: [],
+    contactSettings: {
+      phones: ["+374 00 000000"],
+      emails: ["info@comfort.am"],
+      address: { en: "Yerevan, Armenia", ru: "Ереван, Армения", am: "Երևան, Հայաստան" },
+      hours: { en: "Mon–Sat 10:00–19:00", ru: "Пн–Сб 10:00–19:00", am: "Երկ–Շբ 10:00–19:00" },
+      socials: [
+        { id: "whatsapp", label: "WhatsApp", href: "https://wa.me/37400000000" },
+        { id: "instagram", label: "Instagram", href: "https://instagram.com" },
+      ],
+      showrooms: [
+        {
+          id: "yerevan",
+          name: "Yerevan Showroom",
+          address: "15 Northern Ave, Yerevan",
+          hours: "Mon–Sat 10:00–19:00",
+          phone: "+374 00 000000",
+        },
+      ],
+    },
   };
 }
 
-let store: Store = loadStore();
+function loadStore(): Store {
+  const defaults = defaultStore();
+  if (typeof window !== "undefined") {
+    try {
+      const raw = sessionStorage.getItem(STORE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as Partial<Store>;
+        return {
+          ...defaults,
+          ...parsed,
+          certificates: parsed.certificates ?? defaults.certificates,
+          downloads: parsed.downloads ?? defaults.downloads,
+          contactMessages: parsed.contactMessages ?? defaults.contactMessages,
+          contactSettings: {
+            ...defaults.contactSettings,
+            ...parsed.contactSettings,
+          },
+        };
+      }
+    } catch {
+      /* ignore */
+    }
+  }
+  return defaults;
+}
+
+const store: Store = loadStore();
 
 export let mockModeActive =
   process.env.NEXT_PUBLIC_MOCK_MODE === "true" ||
@@ -168,6 +235,7 @@ export const mockStore = {
       name: payload.name ?? { en: "", ru: "", am: "" },
       description: payload.description ?? { en: "", ru: "", am: "" },
       image: payload.image ?? "",
+      parentId: payload.parentId ?? null,
       productCount: payload.productCount ?? 0,
     } as ProductCategory;
     store.categories.push(category);
@@ -279,4 +347,82 @@ export const mockStore = {
   },
 
   getUsers: (): MockUser[] => Object.values(DEMO_USERS),
+
+  getCertificates: () => [...store.certificates],
+  getCertificate: (id: string) => store.certificates.find((item) => item.id === id) ?? null,
+  createCertificate: (payload: Partial<Certificate>) => {
+    const item = {
+      id: newId("cert"),
+      title: payload.title ?? { en: "", ru: "", am: "" },
+      issuer: payload.issuer ?? "",
+      year: payload.year,
+      fileUrl: payload.fileUrl ?? "",
+      image: payload.image,
+    } as Certificate;
+    store.certificates.unshift(item);
+    persist();
+    return item;
+  },
+  updateCertificate: (id: string, payload: Partial<Certificate>) => {
+    const index = store.certificates.findIndex((item) => item.id === id);
+    if (index === -1) throw new Error("Certificate not found");
+    store.certificates[index] = { ...store.certificates[index], ...payload, id };
+    persist();
+    return store.certificates[index];
+  },
+  deleteCertificate: (id: string) => {
+    if (!removeById(store.certificates, id)) throw new Error("Certificate not found");
+    persist();
+  },
+
+  getDownloads: (publicOnly = false) =>
+    store.downloads.filter((item) => (publicOnly ? item.downloadable : true)),
+  getDownload: (id: string) => store.downloads.find((item) => item.id === id) ?? null,
+  createDownload: (payload: Partial<DownloadFile>) => {
+    const item = {
+      id: newId("dl"),
+      filename: payload.filename ?? "file",
+      title: payload.title ?? { en: "", ru: "", am: "" },
+      category: payload.category ?? "other",
+      url: payload.url ?? "",
+      size: payload.size,
+      downloadable: payload.downloadable ?? true,
+    } as DownloadFile;
+    store.downloads.unshift(item);
+    persist();
+    return item;
+  },
+  updateDownload: (id: string, payload: Partial<DownloadFile>) => {
+    const index = store.downloads.findIndex((item) => item.id === id);
+    if (index === -1) throw new Error("Download not found");
+    store.downloads[index] = { ...store.downloads[index], ...payload, id };
+    persist();
+    return store.downloads[index];
+  },
+  deleteDownload: (id: string) => {
+    if (!removeById(store.downloads, id)) throw new Error("Download not found");
+    persist();
+  },
+
+  getContactMessages: () => [...store.contactMessages],
+  addContactMessage: (payload: ContactMessage) => {
+    store.contactMessages.unshift(payload);
+    persist();
+  },
+  getContactSettings: () => clone(store.contactSettings),
+  updateContactSettings: (payload: ContactSettings) => {
+    store.contactSettings = clone(payload);
+    persist();
+    return store.contactSettings;
+  },
+
+  uploadFile: async (file: File) => {
+    const url = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result));
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+    return { id: newId("file"), name: file.name, url, size: file.size, type: file.type };
+  },
 };

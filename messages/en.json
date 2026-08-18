@@ -19,7 +19,8 @@
     "configurator": "Configurator",
     "search": "Search",
     "contactCta": "Contact us",
-    "requestCatalog": "Request catalog"
+    "requestCatalog": "Request catalog",
+    "oldSite": "Old site"
   },
   "hero": {
     "title": "Baseboards. 3D Panels. Moldings.",
@@ -93,7 +94,8 @@
     "technology": "Technology",
     "quality": "Quality",
     "awards": "Awards",
-    "certificates": "Certificates"
+    "certificates": "Certificates",
+    "certificatesEmpty": "Certificates will appear here after they are uploaded in the admin panel."
   },
   "projects": {
     "title": "Projects",
@@ -225,7 +227,12 @@
     "dwg": "DWG",
     "textures": "Textures",
     "catalogs": "Catalogs",
-    "guides": "Installation guides"
+    "guides": "Installation guides",
+    "templates": "Templates",
+    "collections": "Collections",
+    "other": "Other",
+    "all": "All",
+    "empty": "No files in this category yet."
   },
   "blog": {
     "title": "Journal",
@@ -385,7 +392,32 @@
     "value": "Value",
     "unit": "Unit",
     "apiUnavailable": "Could not load data from the API.",
-    "apiUnavailableHint": "Start MySQL (XAMPP), then run: npm run dev:api"
+    "apiUnavailableHint": "Start MySQL (XAMPP), then run: npm run dev:api",
+    "parentCategory": "Parent category",
+    "topLevelCategory": "Top-level category",
+    "selectSubcategory": "Subcategory",
+    "thisCategory": "Use parent category",
+    "categoryHint": "Choose a mother category, then a subcategory such as Pannels → 3D Prof.",
+    "contactInbox": "Contact",
+    "contactInboxDesc": "Requests and public contact details",
+    "contactRequests": "Requests",
+    "contactDetails": "Contact details",
+    "phones": "Phones",
+    "address": "Address",
+    "hours": "Working hours",
+    "socials": "Social links",
+    "socialsHint": "One per line: Name|url",
+    "showrooms": "Showrooms",
+    "showroomsHint": "One per line: Name | Address | Hours | Phone",
+    "createCertificate": "Add certificate",
+    "editCertificate": "Edit certificate",
+    "createDownload": "Add file",
+    "editDownload": "Edit file",
+    "issuer": "Issuer",
+    "year": "Year",
+    "certificateFile": "Certificate file",
+    "filename": "File name",
+    "downloadable": "Downloadable"
   },
   "common": {
     "loading": "Loading",

@@ -11,11 +11,13 @@ export const collectionsRouter = Router();
 categoriesRouter.get("/", async (_req, res) => {
   try {
     const rows = await query(`
-      SELECT c.*, COUNT(p.id) AS product_count
+      SELECT c.*, (
+        SELECT COUNT(*) FROM products p
+        WHERE p.category_id = c.id
+           OR p.category_id IN (SELECT id FROM categories WHERE parent_id = c.id)
+      ) AS product_count
       FROM categories c
-      LEFT JOIN products p ON p.category_id = c.id
-      GROUP BY c.id
-      ORDER BY c.slug
+      ORDER BY c.parent_id IS NOT NULL, c.slug
     `);
     return res.json(rows.map(mapCategory));
   } catch (error) {
@@ -25,11 +27,13 @@ categoriesRouter.get("/", async (_req, res) => {
 
 categoriesRouter.get("/:slug", async (req, res) => {
   const rows = await query(
-    `SELECT c.*, COUNT(p.id) AS product_count
+    `SELECT c.*, (
+        SELECT COUNT(*) FROM products p
+        WHERE p.category_id = c.id
+           OR p.category_id IN (SELECT id FROM categories WHERE parent_id = c.id)
+      ) AS product_count
      FROM categories c
-     LEFT JOIN products p ON p.category_id = c.id
-     WHERE c.slug = ? OR c.id = ?
-     GROUP BY c.id`,
+     WHERE c.slug = ? OR c.id = ?`,
     [req.params.slug, req.params.slug],
   );
   if (!rows[0]) return res.status(404).json({ message: "Category not found" });
@@ -39,8 +43,15 @@ categoriesRouter.get("/:slug", async (req, res) => {
 categoriesRouter.post("/", requireAuth, async (req, res) => {
   const id = req.body.id || randomUUID();
   await query(
-    "INSERT INTO categories (id, slug, name, description, image) VALUES (?, ?, ?, ?, ?)",
-    [id, req.body.slug, JSON.stringify(req.body.name), JSON.stringify(req.body.description), req.body.image],
+    "INSERT INTO categories (id, slug, name, description, image, parent_id) VALUES (?, ?, ?, ?, ?, ?)",
+    [
+      id,
+      req.body.slug,
+      JSON.stringify(req.body.name),
+      JSON.stringify(req.body.description),
+      req.body.image,
+      req.body.parentId || null,
+    ],
   );
   const rows = await query("SELECT *, 0 AS product_count FROM categories WHERE id = ?", [id]);
   res.status(201).json(mapCategory(rows[0]));
@@ -48,8 +59,15 @@ categoriesRouter.post("/", requireAuth, async (req, res) => {
 
 categoriesRouter.put("/:id", requireAuth, async (req, res) => {
   await query(
-    "UPDATE categories SET slug=?, name=?, description=?, image=? WHERE id=?",
-    [req.body.slug, JSON.stringify(req.body.name), JSON.stringify(req.body.description), req.body.image, req.params.id],
+    "UPDATE categories SET slug=?, name=?, description=?, image=?, parent_id=? WHERE id=?",
+    [
+      req.body.slug,
+      JSON.stringify(req.body.name),
+      JSON.stringify(req.body.description),
+      req.body.image,
+      req.body.parentId || null,
+      req.params.id,
+    ],
   );
   const rows = await query("SELECT *, 0 AS product_count FROM categories WHERE id = ?", [req.params.id]);
   if (!rows[0]) return res.status(404).json({ message: "Category not found" });

@@ -18,6 +18,13 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion"],
   },
+  async rewrites() {
+    const apiOrigin = (process.env.API_URL || "http://127.0.0.1:4000/api").replace(
+      /\/api\/?$/,
+      "",
+    );
+    return [{ source: "/uploads/:path*", destination: `${apiOrigin}/uploads/:path*` }];
+  },
   headers: async () => [
     {
       source: "/(.*)",

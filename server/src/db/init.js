@@ -19,6 +19,11 @@ async function init() {
 
   const schema = fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8");
   await connection.query(schema);
+  try {
+    await connection.query("ALTER TABLE comfort.categories ADD COLUMN parent_id CHAR(36) NULL");
+  } catch {
+    /* already exists */
+  }
   await connection.end();
   console.log("MySQL schema ready.");
 }

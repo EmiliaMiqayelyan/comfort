@@ -19,7 +19,8 @@
     "configurator": "Конфигуратор",
     "search": "Поиск",
     "contactCta": "Связаться с нами",
-    "requestCatalog": "Запросить каталог"
+    "requestCatalog": "Запросить каталог",
+    "oldSite": "Старый сайт"
   },
   "hero": {
     "title": "Плинтусы. 3D панели. Молдинги.",
@@ -93,7 +94,8 @@
     "technology": "Технологии",
     "quality": "Качество",
     "awards": "Награды",
-    "certificates": "Сертификаты"
+    "certificates": "Сертификаты",
+    "certificatesEmpty": "Сертификаты появятся здесь после загрузки в админ-панели."
   },
   "projects": {
     "title": "Проекты",
@@ -225,7 +227,12 @@
     "dwg": "DWG",
     "textures": "Текстуры",
     "catalogs": "Каталоги",
-    "guides": "Инструкции"
+    "guides": "Инструкции",
+    "templates": "Шаблоны",
+    "collections": "Коллекции",
+    "other": "Другое",
+    "all": "Все",
+    "empty": "В этой категории пока нет файлов."
   },
   "blog": {
     "title": "Журнал",
@@ -385,7 +392,32 @@
     "value": "Значение",
     "unit": "Ед.",
     "apiUnavailable": "Не удалось загрузить данные из API.",
-    "apiUnavailableHint": "Запустите MySQL (XAMPP), затем: npm run dev:api"
+    "apiUnavailableHint": "Запустите MySQL (XAMPP), затем: npm run dev:api",
+    "parentCategory": "Родительская категория",
+    "topLevelCategory": "Основная категория",
+    "selectSubcategory": "Подкатегория",
+    "thisCategory": "Использовать родительскую категорию",
+    "categoryHint": "Сначала выберите основную категорию, затем подкатегорию, например Pannels → 3D Prof.",
+    "contactInbox": "Контакты",
+    "contactInboxDesc": "Заявки и публичные контакты",
+    "contactRequests": "Заявки",
+    "contactDetails": "Контактные данные",
+    "phones": "Телефоны",
+    "address": "Адрес",
+    "hours": "Часы работы",
+    "socials": "Соцсети",
+    "socialsHint": "Каждая строка: Название|ссылка",
+    "showrooms": "Шоурумы",
+    "showroomsHint": "Каждая строка: Название | Адрес | Часы | Телефон",
+    "createCertificate": "Добавить сертификат",
+    "editCertificate": "Редактировать сертификат",
+    "createDownload": "Добавить файл",
+    "editDownload": "Редактировать файл",
+    "issuer": "Издатель",
+    "year": "Год",
+    "certificateFile": "Файл сертификата",
+    "filename": "Имя файла",
+    "downloadable": "Доступен для скачивания"
   },
   "common": {
     "loading": "Загрузка",

@@ -1,5 +1,6 @@
 "use client";
 
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useCallback, useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { AuthGate } from "@/features/admin/auth-gate";
@@ -52,6 +53,15 @@ export default function AdminCategoriesPage() {
           }}
           columns={[
             { key: "name", header: t("name"), render: (row) => getLocalized(row.name, locale) },
+            {
+              key: "parentId",
+              header: t("parentCategory"),
+              render: (row) => {
+                if (!row.parentId) return t("topLevelCategory");
+                const parent = items.find((item) => item.id === row.parentId);
+                return parent ? getLocalized(parent.name, locale) : "—";
+              },
+            },
             { key: "slug", header: "Slug" },
             { key: "productCount", header: t("products") },
           ]}

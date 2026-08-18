@@ -6,7 +6,9 @@ import { Reveal } from "@/components/molecules/reveal";
 import { ProductCardGrid } from "@/components/molecules/product-card";
 import { Badge } from "@/components/atoms/badge";
 import { getLocalized } from "@/data/catalog";
-import { useProducts } from "@/hooks/use-catalog";
+import { useCategories, useProducts } from "@/hooks/use-catalog";
+import { CatalogCard } from "@/components/molecules/catalog-card";
+import { childCategories, productsInCategory } from "@/lib/category-tree";
 import type { ProductCategory } from "@/types";
 
 export function CategoryDetailContent({
@@ -18,7 +20,11 @@ export function CategoryDetailContent({
   const t = useTranslations("categories");
   const tp = useTranslations("product");
   const { data: allProducts = [] } = useProducts();
-  const products = allProducts.filter((p) => p.categoryId === category.id);
+  const { data: categories = [] } = useCategories();
+  const products = allProducts.filter((p) =>
+    productsInCategory(category.id, categories, p.categoryId),
+  );
+  const children = childCategories(categories, category.id);
 
   return (
     <div>
@@ -47,6 +53,20 @@ export function CategoryDetailContent({
           />
         </div>
       </Reveal>
+
+      {children.length > 0 && (
+        <div className="mb-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {children.map((child) => (
+            <CatalogCard
+              key={child.id}
+              href={`/products/${child.slug}`}
+              image={child.image}
+              title={getLocalized(child.name, locale)}
+              description={getLocalized(child.description, locale)}
+            />
+          ))}
+        </div>
+      )}
 
       {products.length === 0 ? (
         <Reveal>

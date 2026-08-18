@@ -1,6 +1,10 @@
 import type {
   BlogPost,
+  Certificate,
   Collection,
+  ContactMessage,
+  ContactSettings,
+  DownloadFile,
   Product,
   ProductCategory,
   Project,
@@ -39,7 +43,8 @@ function getToken() {
   try {
     const raw = localStorage.getItem("comfort-auth");
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as any;
+    type StoredAuth = { state?: { token?: string }; token?: string } | null;
+    const parsed = JSON.parse(raw) as StoredAuth;
     return parsed?.state?.token ?? parsed?.token ?? null;
   } catch {
     return null;
@@ -51,7 +56,8 @@ export async function apiFetch<T>(
   init: RequestInit = {},
 ): Promise<T> {
   const headers = new Headers(init.headers);
-  if (!headers.has("Content-Type") && init.body) {
+  const isFormData = typeof FormData !== "undefined" && init.body instanceof FormData;
+  if (!isFormData && !headers.has("Content-Type") && init.body) {
     headers.set("Content-Type", "application/json");
   }
   const token = getToken();
@@ -168,6 +174,31 @@ export const catalogApi = {
       () => apiGet<BlogPost>(`/blog/${slug}`),
       () => mockStore.getPost(slug),
     ),
+  certificates: () =>
+    withReadFallback(
+      () => apiGet<Certificate[]>("/certificates"),
+      () => mockStore.getCertificates(),
+    ),
+  certificate: (id: string) =>
+    withReadFallback(
+      () => apiGet<Certificate>(`/certificates/${id}`),
+      () => mockStore.getCertificate(id),
+    ),
+  downloads: (publicOnly = false) =>
+    withReadFallback(
+      () => apiGet<DownloadFile[]>(`/downloads${publicOnly ? "?public=true" : ""}`),
+      () => mockStore.getDownloads(publicOnly),
+    ),
+  download: (id: string) =>
+    withReadFallback(
+      () => apiGet<DownloadFile>(`/downloads/${id}`),
+      () => mockStore.getDownload(id),
+    ),
+  contactSettings: () =>
+    withReadFallback(
+      () => apiGet<ContactSettings>("/settings/contact"),
+      () => mockStore.getContactSettings(),
+    ),
 };
 
 export const adminApi = {
@@ -251,7 +282,62 @@ export const adminApi = {
       () => apiGet<AuthUser[]>("/users"),
       () => mockStore.getUsers(),
     ),
+  createCertificate: (payload: Partial<Certificate>) =>
+    withWriteFallback(
+      () => apiFetch<Certificate>("/certificates", { method: "POST", body: JSON.stringify(payload) }),
+      () => mockStore.createCertificate(payload),
+    ),
+  updateCertificate: (id: string, payload: Partial<Certificate>) =>
+    withWriteFallback(
+      () => apiFetch<Certificate>(`/certificates/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
+      () => mockStore.updateCertificate(id, payload),
+    ),
+  deleteCertificate: (id: string) =>
+    withWriteVoidFallback(
+      () => apiFetch<void>(`/certificates/${id}`, { method: "DELETE" }),
+      () => mockStore.deleteCertificate(id),
+    ),
+  createDownload: (payload: Partial<DownloadFile>) =>
+    withWriteFallback(
+      () => apiFetch<DownloadFile>("/downloads", { method: "POST", body: JSON.stringify(payload) }),
+      () => mockStore.createDownload(payload),
+    ),
+  updateDownload: (id: string, payload: Partial<DownloadFile>) =>
+    withWriteFallback(
+      () => apiFetch<DownloadFile>(`/downloads/${id}`, { method: "PUT", body: JSON.stringify(payload) }),
+      () => mockStore.updateDownload(id, payload),
+    ),
+  deleteDownload: (id: string) =>
+    withWriteVoidFallback(
+      () => apiFetch<void>(`/downloads/${id}`, { method: "DELETE" }),
+      () => mockStore.deleteDownload(id),
+    ),
+  contactMessages: () =>
+    withReadFallback(
+      () => apiGet<ContactMessage[]>("/contact"),
+      () => mockStore.getContactMessages(),
+    ),
+  updateContactSettings: (payload: ContactSettings) =>
+    withWriteFallback(
+      () => apiFetch<ContactSettings>("/settings/contact", { method: "PUT", body: JSON.stringify(payload) }),
+      () => mockStore.updateContactSettings(payload),
+    ),
 };
+
+export async function uploadFile(file: File) {
+  if (isMockMode()) return mockStore.uploadFile(file);
+  try {
+    const body = new FormData();
+    body.append("file", file);
+    return await apiFetch<{ id: string; name: string; url: string; size: number; type: string }>("/media", {
+      method: "POST",
+      body,
+    });
+  } catch {
+    enableMockMode();
+    return mockStore.uploadFile(file);
+  }
+}
 
 export async function loginRequest(email: string, password: string) {
   if (isMockMode()) {
@@ -283,6 +369,11 @@ export function sendContact(payload: {
   message: string;
 }) {
   if (isMockMode()) {
+    mockStore.addContactMessage({
+      id: `msg-${Date.now()}`,
+      ...payload,
+      created_at: new Date().toISOString(),
+    });
     return Promise.resolve({ ok: true, id: "mock-contact" });
   }
   return apiFetch<{ ok: boolean; id: string }>("/contact", {
@@ -290,6 +381,11 @@ export function sendContact(payload: {
     body: JSON.stringify(payload),
   }).catch(() => {
     enableMockMode();
+    mockStore.addContactMessage({
+      id: `msg-${Date.now()}`,
+      ...payload,
+      created_at: new Date().toISOString(),
+    });
     return { ok: true, id: "mock-contact" };
   });
 }
