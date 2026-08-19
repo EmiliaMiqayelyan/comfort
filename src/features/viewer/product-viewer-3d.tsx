@@ -28,11 +28,10 @@ import { useViewerStore } from "@/stores";
 import { DEFAULT_PRODUCT_MODEL_URL } from "@/lib/product-model";
 
 const COLOR_SWATCHES = [
-  "#F7F7F4",
-  "#2B2F36",
-  "#B8A07E",
-  "#E8E4DC",
-  "#4A5568",
+  "#2C333E",
+  "#203E4B",
+  "#ACB9C0",
+  "#E7DFD9",
 ];
 
 const ENVIRONMENT_OPTIONS = [

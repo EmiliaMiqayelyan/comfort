@@ -42,8 +42,6 @@ const LIGHTING_PRESETS: Record<
   product: { ambient: 0.55, key: 1.0, fill: 0.45 },
 };
 
-const DEFAULT_TINT = "#f7f7f4";
-
 export function ViewerCanvas({
   modelUrl = DEFAULT_PRODUCT_MODEL_URL,
   color,
@@ -68,7 +66,7 @@ export function ViewerCanvas({
       gl={{ preserveDrawingBuffer: true, antialias: true }}
     >
       <PerspectiveCamera makeDefault position={[0.42, 0.2, 0.55]} fov={38} />
-      <color attach="background" args={["#f5f5f2"]} />
+      <color attach="background" args={["#E7DFD9"]} />
       <ambientLight intensity={LIGHTING_PRESETS[lighting].ambient} />
       <directionalLight
         castShadow
@@ -216,12 +214,8 @@ function applyViewerMaterial(
   if (!mat.userData.baseColor) {
     mat.userData.baseColor = colored.color.clone();
   }
-  const keepOriginal = color.toLowerCase() === DEFAULT_TINT;
-  if (keepOriginal) {
-    colored.color.copy(mat.userData.baseColor as Color);
-  } else {
-    colored.color.set(color);
-  }
+  // Always apply chosen viewer color (palette-driven) to the model materials.
+  colored.color.set(color);
 }
 
 function DimensionOverlay({
@@ -249,7 +243,7 @@ function DimensionOverlay({
           [x, bottomY, frontZ],
           [x, topY, frontZ],
         ]}
-        color="#c8a97e"
+        color="#203E4B"
         lineWidth={1.5}
       />
       <Line
@@ -257,7 +251,7 @@ function DimensionOverlay({
           [x, bottomY, frontZ],
           [x + 0.06, bottomY, frontZ + 0.06],
         ]}
-        color="#c8a97e"
+        color="#203E4B"
         lineWidth={1.5}
       />
       <Line
@@ -265,7 +259,7 @@ function DimensionOverlay({
           [x, bottomY, frontZ + 0.06],
           [x + 0.06, bottomY, frontZ + 0.06],
         ]}
-        color="#c8a97e"
+        color="#203E4B"
         lineWidth={1.5}
       />
 

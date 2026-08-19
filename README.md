@@ -75,7 +75,7 @@ messages/           # am / ru / en dictionaries
 
 ## Design system
 
-- Primary `#111827` · Secondary `#F5F5F2` · Accent `#C8A97E`
+- Primary `#2C3333` · Secondary `#ACB9C0` · Accent `#203E4B`
 - Dark mode via `next-themes`
 - Glassmorphism utilities: `.glass`, `.shadow-soft`, `.display`
 - Fonts: Manrope (body) · Syne (display)

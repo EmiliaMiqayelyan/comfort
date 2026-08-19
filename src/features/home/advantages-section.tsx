@@ -34,8 +34,8 @@ export function AdvantagesSection() {
           {advantages.map(({ key, icon: Icon }, i) => (
             <Reveal key={key} delay={i * 0.08}>
               <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
-                <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
-                  <Icon className="h-5 w-5 text-accent" />
+                <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-comfort-sand/20 bg-comfort-sand/10">
+                  <Icon className="h-5 w-5 text-comfort-sand" />
                 </span>
                 <h3 className="text-sm font-medium tracking-wide text-comfort-sand">
                   {t(key)}
