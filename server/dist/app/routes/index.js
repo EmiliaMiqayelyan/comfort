@@ -1,0 +1,38 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.apiRouter = void 0;
+const express_1 = require("express");
+const auth_routes_1 = require("../../modules/auth/auth.routes");
+const product_routes_1 = require("../../modules/products/product.routes");
+const category_routes_1 = require("../../modules/categories/category.routes");
+const collection_routes_1 = require("../../modules/collections/collection.routes");
+const project_routes_1 = require("../../modules/projects/project.routes");
+const blog_routes_1 = require("../../modules/blog/blog.routes");
+const user_routes_1 = require("../../modules/users/user.routes");
+const media_routes_1 = require("../../modules/media/media.routes");
+const contact_routes_1 = require("../../modules/contact/contact.routes");
+const calculator_routes_1 = require("../../modules/calculator/calculator.routes");
+const certificate_routes_1 = require("../../modules/certificates/certificate.routes");
+const download_routes_1 = require("../../modules/downloads/download.routes");
+const settings_routes_1 = require("../../modules/settings/settings.routes");
+const sequelize_1 = require("../../shared/database/sequelize");
+const router = (0, express_1.Router)();
+exports.apiRouter = router;
+router.use('/auth', auth_routes_1.authRoutes);
+router.use('/products', product_routes_1.productRoutes);
+router.use('/categories', category_routes_1.categoryRoutes);
+router.use('/collections', collection_routes_1.collectionRoutes);
+router.use('/projects', project_routes_1.projectRoutes);
+router.use('/blog', blog_routes_1.blogRoutes);
+router.use('/users', user_routes_1.userRoutes);
+router.use('/media', media_routes_1.mediaRoutes);
+router.use('/contact', contact_routes_1.contactRoutes);
+router.use('/calculator', calculator_routes_1.calculatorRoutes);
+router.use('/certificates', certificate_routes_1.certificateRoutes);
+router.use('/downloads', download_routes_1.downloadRoutes);
+router.use('/settings', settings_routes_1.settingsRoutes);
+router.get('/health', async (_req, res) => {
+    await sequelize_1.sequelize.authenticate();
+    res.json({ ok: true, service: 'comfort-api', database: 'connected' });
+});
+//# sourceMappingURL=index.js.map

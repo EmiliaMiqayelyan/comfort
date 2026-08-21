@@ -1,4 +1,4 @@
-import './shared/types/express.d';
+/// <reference path="./shared/types/express.d.ts" />
 import { config } from './app/config/config';
 import { createApp } from './app/app';
 import { sequelize } from './shared/database/sequelize';
