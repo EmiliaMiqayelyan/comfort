@@ -1,5 +1,6 @@
 # Comfort — Premium Architectural Interiors
 
+
 Enterprise-grade multilingual website for [Comfort](https://comfort.am): baseboards, 3D wall panels, moldings, and profiles.
 
 ## Stack
